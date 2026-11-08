@@ -3,6 +3,7 @@ import { SceneManager } from '../core/SceneManager';
 import { CameraManager } from '../core/CameraManager';
 import { RendererManager } from '../core/RendererManager';
 import { InputManager } from '../core/InputManager';
+import { MobileControls } from '../core/MobileControls';
 import { AudioManager } from '../core/AudioManager';
 import { XRManager } from '../xr/XRManager';
 import { XRControllerManager } from '../xr/XRControllerManager';
@@ -27,6 +28,7 @@ export class Application {
   private cameraManager: CameraManager;
   private rendererManager: RendererManager;
   private inputManager: InputManager;
+  private mobileControls: MobileControls;
   private audioManager: AudioManager;
 
   // WebXR
@@ -74,6 +76,10 @@ export class Application {
       this.cameraManager.cameraRig,
       this.rendererManager.renderer.domElement
     );
+    this.mobileControls = new MobileControls(
+      this.cameraManager.camera,
+      this.inputManager
+    );
 
     // 4. Initialize WebXR for Meta Quest
     this.xrManager = new XRManager(this.rendererManager.renderer);
@@ -113,6 +119,7 @@ export class Application {
         this.mainMenu.hide();
         this.briefing.hide();
         this.inputManager.setEnabled(false); // In VR, controllers handle input
+        this.mobileControls.setVisible(false);
         this.missionManager.startMission();
         this.audioManager.startAmbientHum();
       }
@@ -123,6 +130,9 @@ export class Application {
 
     EventBus.getInstance().on('xr:sessionEnd', () => {
       this.inputManager.setEnabled(true);
+      if (PlatformManager.getInstance().getIsMobile()) {
+        this.mobileControls.setVisible(true);
+      }
     });
 
     // Pause menu triggers
@@ -165,6 +175,56 @@ export class Application {
       this.sceneManager.setEmergencyAtmosphere(false);
       this.audioManager.stopEmergencySiren();
     });
+
+    // Mission state changes
+    EventBus.getInstance().on('mission:stateChanged', (data: { current: MissionState }) => {
+      if (
+        data.current === MissionState.ACTIVE ||
+        data.current === MissionState.EMERGENCY ||
+        data.current === MissionState.RECOVERY
+      ) {
+        this.mobileControls.setEnabled(true);
+        this.mobileControls.setVisible(true);
+      } else if (data.current === MissionState.PAUSED || data.current === MissionState.COMPLETED) {
+        this.mobileControls.setEnabled(false);
+        this.mobileControls.setVisible(false);
+      }
+    });
+
+    // Console open/close events
+    EventBus.getInstance().on('ui:openConsole', () => {
+      this.inputManager.setEnabled(false);
+      this.mobileControls.setEnabled(false);
+      this.mobileControls.setVisible(false);
+    });
+
+    EventBus.getInstance().on('ui:consoleClosed', () => {
+      const state = this.missionManager.getState();
+      if (
+        state === MissionState.ACTIVE ||
+        state === MissionState.EMERGENCY ||
+        state === MissionState.RECOVERY
+      ) {
+        this.inputManager.setEnabled(true);
+        this.mobileControls.setEnabled(true);
+        this.mobileControls.setVisible(true);
+      }
+    });
+
+    // Briefing and Main Menu transitions
+    EventBus.getInstance().on('ui:openBriefing', () => {
+      this.mobileControls.setVisible(false);
+    });
+
+    EventBus.getInstance().on('mission:completed', () => {
+      this.mobileControls.setVisible(false);
+    });
+
+    EventBus.getInstance().on('ui:showMainMenu', () => {
+      this.mobileControls.setVisible(false);
+      this.cameraManager.resetPosition();
+      this.inputManager.setEnabled(true);
+    });
   }
 
   private togglePause(): void {
@@ -179,17 +239,22 @@ export class Application {
   private pause(): void {
     this.missionManager.pauseMission();
     this.inputManager.setEnabled(false);
+    this.mobileControls.setEnabled(false);
+    this.mobileControls.setVisible(false);
     this.modalPause?.classList.remove('hidden');
   }
 
   private resume(): void {
     this.modalPause?.classList.add('hidden');
     this.inputManager.setEnabled(true);
+    this.mobileControls.setEnabled(true);
+    this.mobileControls.setVisible(true);
     this.missionManager.resumeMission();
   }
 
   private restart(): void {
     this.modalPause?.classList.add('hidden');
+    this.mobileControls.setVisible(false);
     this.missionManager.resetMission();
     this.cameraManager.resetPosition();
     this.mainMenu.show();

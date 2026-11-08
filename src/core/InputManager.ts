@@ -3,6 +3,7 @@ import { CONFIG } from '../app/Configuration';
 import { InteractionManager } from './InteractionManager';
 import { MathUtils } from '../utils/MathUtils';
 import { EventBus } from '../utils/EventBus';
+import { PlatformManager } from '../app/PlatformManager';
 
 export class InputManager {
   private camera: THREE.PerspectiveCamera;
@@ -12,9 +13,14 @@ export class InputManager {
   private isLocked: boolean = false;
   private isEnabled: boolean = true;
 
-  // Euler angles for mouse look
+  // Euler angles for mouse / touch look
   private pitch = 0;
   private yaw = 0;
+
+  // Mobile touch movement & state
+  private touchMoveX = 0;
+  private touchMoveZ = 0;
+  private touchRunning = false;
 
   // Key states
   private keys: Record<string, boolean> = {
@@ -83,6 +89,12 @@ export class InputManager {
   private onCanvasClick = (): void => {
     if (!this.isEnabled) return;
 
+    if (PlatformManager.getInstance().getIsMobile()) {
+      // On mobile devices, pointer lock is not used. Tapping triggers interaction.
+      InteractionManager.getInstance().interactCurrent();
+      return;
+    }
+
     if (!this.isLocked) {
       // Request pointer lock only if no fullscreen modal is active
       const activeModal = document.querySelector('.modal-backdrop:not(.hidden), .fullscreen-modal:not(.hidden)');
@@ -106,8 +118,17 @@ export class InputManager {
     const movementX = e.movementX || 0;
     const movementY = e.movementY || 0;
 
-    this.yaw -= movementX * CONFIG.CONTROLS.MOUSE_SENSITIVITY;
-    this.pitch -= movementY * CONFIG.CONTROLS.MOUSE_SENSITIVITY;
+    this.addLookDelta(movementX * CONFIG.CONTROLS.MOUSE_SENSITIVITY, movementY * CONFIG.CONTROLS.MOUSE_SENSITIVITY);
+  };
+
+  /**
+   * Adjusts camera yaw & pitch from mouse movement or mobile touch swipe
+   */
+  public addLookDelta(deltaYaw: number, deltaPitch: number): void {
+    if (!this.isEnabled) return;
+
+    this.yaw -= deltaYaw;
+    this.pitch -= deltaPitch;
 
     // Clamp pitch between -85 and +85 degrees to avoid gimbal flip
     const maxPitch = Math.PI / 2.05;
@@ -116,20 +137,38 @@ export class InputManager {
     // Apply rotation: Rig handles yaw, Camera handles pitch
     this.cameraRig.rotation.y = this.yaw;
     this.camera.rotation.x = this.pitch;
-  };
+  }
+
+  /**
+   * Sets analog movement vector from virtual mobile joystick
+   * @param x Left (-1) to Right (+1)
+   * @param z Backward (-1) to Forward (+1)
+   */
+  public setTouchMove(x: number, z: number): void {
+    this.touchMoveX = x;
+    this.touchMoveZ = z;
+  }
+
+  public setTouchRunning(running: boolean): void {
+    this.touchRunning = running;
+  }
 
   public update(delta: number): void {
     if (!this.isEnabled) return;
 
-    // Movement calculation
-    const moveZ = Number(this.keys.KeyW || this.keys.ArrowUp) - Number(this.keys.KeyS || this.keys.ArrowDown);
-    const moveX = Number(this.keys.KeyD || this.keys.ArrowRight) - Number(this.keys.KeyA || this.keys.ArrowLeft);
+    // Movement calculation combining desktop keyboard and mobile touch joystick
+    const keyMoveZ = Number(this.keys.KeyW || this.keys.ArrowUp) - Number(this.keys.KeyS || this.keys.ArrowDown);
+    const keyMoveX = Number(this.keys.KeyD || this.keys.ArrowRight) - Number(this.keys.KeyA || this.keys.ArrowLeft);
 
-    this.direction.set(moveX, 0, -moveZ).normalize();
+    const moveZ = keyMoveZ !== 0 ? keyMoveZ : this.touchMoveZ;
+    const moveX = keyMoveX !== 0 ? keyMoveX : this.touchMoveX;
 
-    const speed = this.keys.ShiftLeft ? CONFIG.CONTROLS.RUN_SPEED : CONFIG.CONTROLS.WALK_SPEED;
+    const inputMagnitude = Math.min(Math.sqrt(moveX * moveX + moveZ * moveZ), 1);
+    const isRunning = this.keys.ShiftLeft || this.touchRunning || inputMagnitude > 0.9;
+    const maxSpeed = isRunning ? CONFIG.CONTROLS.RUN_SPEED : CONFIG.CONTROLS.WALK_SPEED;
+    const speed = maxSpeed * inputMagnitude;
 
-    if (moveX !== 0 || moveZ !== 0) {
+    if (inputMagnitude > 0.05) {
       // Align movement to camera yaw direction
       const forward = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.yaw);
       const right = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.yaw);
@@ -172,6 +211,10 @@ export class InputManager {
     this.isEnabled = enabled;
     if (!enabled && this.isLocked) {
       document.exitPointerLock?.();
+    }
+    if (!enabled) {
+      this.touchMoveX = 0;
+      this.touchMoveZ = 0;
     }
   }
 

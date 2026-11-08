@@ -2,8 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#0a0c10" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>MARS ANALOG MISSION | SPACE Tech Labs</title>
   <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
   <link rel="stylesheet" href="./src/styles.css" />
@@ -15,16 +17,23 @@
   <!-- 3D Canvas Container -->
   <div id="webgl-container" class="webgl-viewport"></div>
 
-  <!-- Reticle for desktop first-person inspection -->
+  <!-- Reticle for desktop & mobile first-person inspection -->
   <div id="reticle-container" class="reticle-container">
     <div id="reticle" class="reticle">
       <div class="reticle-dot"></div>
       <div class="reticle-ring"></div>
     </div>
     <div id="interaction-tooltip" class="interaction-tooltip">
-      <span class="key-badge">CLIC</span>
-      <span id="tooltip-text" class="tooltip-text">Interactuar</span>
+      <span class="key-badge">INTERACTUAR</span>
+      <span id="tooltip-text" class="tooltip-text">Apunta para accionar</span>
     </div>
+  </div>
+
+  <!-- Orientation notice for mobile portrait mode -->
+  <div id="portrait-hint-banner" class="portrait-hint-banner hidden">
+    <span class="hint-icon">🔄</span>
+    <span class="hint-text">Gira a horizontal para una mejor experiencia táctil</span>
+    <button class="btn-hint-close" aria-label="Cerrar aviso">&times;</button>
   </div>
 
   <!-- HUD Overlay Layer -->
@@ -40,21 +49,27 @@
       </div>
 
       <div class="hud-mission-status">
-        <div class="hud-metric">
+        <div class="hud-metric metric-mission-name">
           <span class="metric-label">MISIÓN</span>
-          <span class="metric-value highlight-cyan">M-001 HABITAT RECOVERY</span>
+          <span class="metric-value highlight-cyan">M-001 HABITAT</span>
         </div>
         <div class="hud-metric">
-          <span class="metric-label">TIEMPO MISIÓN</span>
+          <span class="metric-label">TIEMPO</span>
           <span id="hud-timer" class="metric-value">00:00.0</span>
         </div>
         <div class="hud-metric">
-          <span class="metric-label">ESTADO HÁBITAT</span>
+          <span class="metric-label">ESTADO</span>
           <span id="hud-habitat-status" class="metric-value status-nominal">NOMINAL</span>
         </div>
       </div>
 
       <div class="hud-actions">
+        <!-- Mobile Objectives Toggle Button -->
+        <button id="btn-toggle-objectives" class="btn-action btn-objectives" title="Ver objetivos de misión">
+          <span>📋</span>
+          <span class="btn-obj-label">OBJETIVOS</span>
+          <span id="obj-btn-count" class="badge-count">0/4</span>
+        </button>
         <button id="btn-enter-xr" class="btn-action btn-xr" title="Iniciar experiencia inmersiva WebXR">
           <span class="xr-icon">🥽</span>
           <span>ENTRAR A VR</span>
@@ -74,11 +89,14 @@
       </div>
     </div>
 
-    <!-- Left Objectives Panel -->
+    <!-- Left Objectives Panel / Mobile Drawer -->
     <aside class="hud-objectives-sidebar">
       <div class="sidebar-header">
         <span class="sidebar-title">OBJETIVOS OPERATIVOS</span>
-        <span id="hud-progress-percent" class="sidebar-progress">0%</span>
+        <div class="sidebar-header-right">
+          <span id="hud-progress-percent" class="sidebar-progress">0%</span>
+          <button id="btn-close-objectives" class="btn-close-sidebar" aria-label="Cerrar panel">&times;</button>
+        </div>
       </div>
       <div class="progress-bar-track">
         <div id="hud-progress-fill" class="progress-bar-fill" style="width: 0%;"></div>
@@ -111,13 +129,51 @@
       </div>
     </aside>
 
-    <!-- Bottom Controls Hint -->
-    <footer id="desktop-controls-hint" class="hud-footer-hints">
+    <!-- Desktop Bottom Controls Hint -->
+    <footer id="desktop-controls-hint" class="hud-footer-hints desktop-hints">
       <div class="hint-item"><span class="kbd">W</span><span class="kbd">A</span><span class="kbd">S</span><span class="kbd">D</span> Moverse</div>
       <div class="hint-item"><span class="kbd">RATÓN</span> Mirar alrededor</div>
       <div class="hint-item"><span class="kbd">CLIC</span> Interactuar / Inspeccionar</div>
       <div class="hint-item"><span class="kbd">ESC</span> Menú / Liberar ratón</div>
     </footer>
+
+    <!-- Mobile Bottom Controls Hint -->
+    <footer id="mobile-controls-hint" class="hud-footer-hints mobile-hints">
+      <div class="hint-item"><span class="touch-icon">🕹️</span> Joystick para caminar</div>
+      <div class="hint-item"><span class="touch-icon">👆</span> Deslizar para mirar</div>
+      <div class="hint-item"><span class="touch-icon">✋</span> Botón o toque para interactuar</div>
+    </footer>
+  </div>
+
+  <!-- Mobile Virtual Controls Layer (Active on touch / mobile devices) -->
+  <div id="mobile-controls" class="mobile-controls-layer hidden">
+    <!-- Left: Virtual Joystick Zone -->
+    <div id="joystick-zone" class="joystick-zone">
+      <div id="joystick-base" class="joystick-base">
+        <div id="joystick-thumb" class="joystick-thumb"></div>
+        <div class="joystick-ring"></div>
+        <div class="joystick-crosshair-v"></div>
+        <div class="joystick-crosshair-h"></div>
+      </div>
+      <div class="joystick-prompt">JOYSTICK VIRTUAL</div>
+    </div>
+
+    <!-- Right: Look / Swipe Area (Touch zone) -->
+    <div id="touch-look-zone" class="touch-look-zone"></div>
+
+    <!-- Bottom-Right: Action & Sprint Controls -->
+    <div class="mobile-action-buttons">
+      <button id="btn-mobile-sprint" class="btn-mobile-action btn-sprint" type="button" title="Alternar correr/caminar">
+        <span class="btn-icon">⚡</span>
+        <span class="btn-sub">CAMINAR</span>
+      </button>
+      <button id="btn-mobile-interact" class="btn-mobile-action btn-interact" type="button" title="Interactuar con consola enfrente o tocar en pantalla">
+        <div class="interact-icon-ring">
+          <span class="btn-icon">✋</span>
+        </div>
+        <span id="btn-mobile-interact-label" class="btn-label">INTERACTUAR</span>
+      </button>
+    </div>
   </div>
 
   <!-- Modals and Overlays Container -->
@@ -140,14 +196,14 @@
           </div>
           <div class="brief-item">
             <span class="label">EQUIPAMIENTO</span>
-            <span class="val">Desktop 3D Interactive / Meta Quest 3/3S WebXR</span>
+            <span class="val">Móvil / Tablet (Táctil) • Desktop (WASD) • Meta Quest (WebXR)</span>
           </div>
         </div>
 
         <div class="menu-actions">
           <button id="btn-start-desktop" class="btn-primary-large">
             <span class="btn-glow"></span>
-            <span class="btn-label">INICIAR MISIÓN (DESKTOP)</span>
+            <span class="btn-label">INICIAR MISIÓN</span>
           </button>
           <button id="btn-start-vr" class="btn-secondary-large">
             <span class="btn-icon">🥽</span>
@@ -156,7 +212,7 @@
         </div>
 
         <div class="system-disclaimer">
-          <strong>Aviso Educativo:</strong> Este software es una simulación interactiva con fines educativos y de demostración técnica desarrollada por SPACE Tech Labs. Las variables y procedimientos corresponden a escenarios análogos ficticios.
+          <strong>Aviso Educativo:</strong> Este software es una simulación interactiva con fines educativos y de demostración técnica desarrollada por SPACE Tech Labs. Compatible con computadoras, smartphones y visores de realidad virtual.
         </div>
       </div>
     </div>
@@ -180,6 +236,9 @@
                 <li><strong>Validación Biológica BIOGROWTH-01:</strong> En la Estación Científica, calibra los espectros lumínicos e irrigación hidropónica de la muestra análoga.</li>
                 <li><strong>Resolución de Contingencia:</strong> Resuelve cualquier desviación operativa mediante los protocolos de reemplazo de filtros y presurización.</li>
               </ol>
+              <div class="mobile-brief-hint">
+                💡 <strong>Controles táctiles:</strong> Usa el joystick a la izquierda para caminar, desliza a la derecha para girar y toca las consolas o el botón "INTERACTUAR" para operar.
+              </div>
             </div>
           </div>
         </div>

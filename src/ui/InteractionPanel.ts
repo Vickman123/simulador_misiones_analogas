@@ -52,6 +52,7 @@ export class InteractionPanel {
     this.modalLifeSupport?.classList.add('hidden');
     this.modalScience?.classList.add('hidden');
     this.modalResources?.classList.add('hidden');
+    EventBus.getInstance().emit('ui:consoleClosed');
   }
 
   /* --------------------------------------------------------------------------

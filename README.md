@@ -9,7 +9,7 @@
 https://vickman123.github.io/simulador_misiones_analogas/
 **MARS ANALOG MISSION** es una experiencia inmersiva y simulador educativo de alta fidelidad desarrollado por **SPACE Tech Labs**. Permite a los participantes entrenar como astronautas análogos en una estación de investigación marciana (Argyre Planitia Analog Station), resolviendo contingencias operacionales en soporte vital y ejecutando experimentos biológicos en gravedad reducida.
 
-El producto opera tanto en **navegadores de escritorio (PC/Mac)** con controles en primera persona (WASD + Mouse) como en **visores de realidad virtual Meta Quest 3 y Meta Quest 3S** mediante **WebXR** directo sin necesidad de instalar aplicaciones nativas.
+El producto opera en **smartphones y tablets (iOS / Android)** mediante controles táctiles inmersivos (joystick virtual, deslizamiento para mirar y toque directo en pantalla), en **navegadores de escritorio (PC/Mac)** con controles en primera persona (WASD + Mouse) y en **visores de realidad virtual Meta Quest 3 y Meta Quest 3S** mediante **WebXR** directo sin necesidad de instalar aplicaciones nativas.
 
 ---
 
@@ -84,7 +84,20 @@ npm run preview
 
 ---
 
-## 🥽 Instrucciones para Probar en Meta Quest 3 / Quest 3S
+## 📱 Experiencia en Dispositivos Móviles (Smartphones y Tablets iOS / Android)
+
+El simulador detecta automáticamente dispositivos móviles y pantallas táctiles, habilitando una interfaz adaptada para pantallas táctiles:
+
+- **Joystick Virtual Dinámico (Mitad izquierda de la pantalla)**: Toca y arrastra con el pulgar izquierdo en cualquier parte de la zona inferior izquierda para caminar hacia adelante, atrás o desplazarte lateralmente. Empujar al extremo activa el modo correr.
+- **Rotación de Cámara (Mitad derecha de la pantalla)**: Desliza el pulgar derecho para girar la vista y mirar en 360° con inclinación suave vertical y horizontal.
+- **Interacción Táctil Directa**: Puedes interactuar de dos formas:
+  1. **Toque Directo**: Toca directamente sobre cualquier módulo (Consola de Soporte Vital, Estación Científica, Gabinete de Recursos) en la pantalla cuando estés cerca.
+  2. **Botón Flotante "INTERACTUAR"**: Se ilumina y pulsa en color cian cuando tienes un objeto al alcance en la retícula central.
+- **Alternador de Carrera (⚡)**: Botón táctil para alternar cómodamente entre caminar y correr.
+- **Cajón Desplegable de Objetivos (📋)**: En pantallas pequeñas, el panel de objetivos se oculta para no obstruir la vista del hábitat y se despliega con un toque desde la barra superior.
+- **Adaptabilidad a Orientación**: Compatible con orientación vertical y horizontal (recomendado modo horizontal para máxima inmersión).
+
+---
 
 La aplicación está diseñada para ejecutarse directamente desde el **Meta Quest Browser**:
 

@@ -132,6 +132,53 @@ export class InteractionManager {
     return null;
   }
 
+  /**
+   * Raycast from screen coordinates (normalized -1 to 1) for mobile touch picking
+   */
+  public raycastFromScreenPoint(screenX: number, screenY: number, camera: THREE.Camera): IInteractable | null {
+    const ndc = new THREE.Vector2(
+      (screenX / window.innerWidth) * 2 - 1,
+      -(screenY / window.innerHeight) * 2 + 1
+    );
+    this.raycaster.setFromCamera(ndc, camera);
+    const targetRoots = Array.from(this.interactables.values()).map((i) => i.object3D);
+    const intersects = this.raycaster.intersectObjects(targetRoots, true);
+
+    for (const hit of intersects) {
+      if (hit.distance > this.raycaster.far) continue;
+      let cur: THREE.Object3D | null = hit.object;
+      while (cur) {
+        const id = cur.userData?.interactableId;
+        if (id && this.interactables.has(id)) {
+          const candidate = this.interactables.get(id)!;
+          if (candidate.canInteract()) {
+            return candidate;
+          }
+        }
+        cur = cur.parent;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Directly interact with an object tapped on screen
+   */
+  public interactAtPoint(screenX: number, screenY: number, camera: THREE.Camera): boolean {
+    const item = this.raycastFromScreenPoint(screenX, screenY, camera);
+    if (item && item.canInteract()) {
+      AudioManager.getInstance().playClick();
+      item.onInteract();
+      EventBus.getInstance().emit('interaction:triggered', item.id);
+      return true;
+    }
+    return false;
+  }
+
+  public getCurrentHovered(): IInteractable | null {
+    return this.currentHovered;
+  }
+
   public interactCurrent(): boolean {
     if (this.currentHovered && this.currentHovered.canInteract()) {
       AudioManager.getInstance().playClick();
