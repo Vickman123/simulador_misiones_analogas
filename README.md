@@ -6,6 +6,7 @@
 [![WebXR](https://img.shields.io/badge/WebXR-Meta%20Quest%203%20%2F%203S-orange.svg)](https://immersiveweb.dev/)
 [![Vite](https://img.shields.io/badge/Vite-5.1-purple.svg)](https://vitejs.dev/)
 
+https://vickman123.github.io/simulador_misiones_analogas/
 **MARS ANALOG MISSION** es una experiencia inmersiva y simulador educativo de alta fidelidad desarrollado por **SPACE Tech Labs**. Permite a los participantes entrenar como astronautas análogos en una estación de investigación marciana (Argyre Planitia Analog Station), resolviendo contingencias operacionales en soporte vital y ejecutando experimentos biológicos en gravedad reducida.
 
 El producto opera tanto en **navegadores de escritorio (PC/Mac)** con controles en primera persona (WASD + Mouse) como en **visores de realidad virtual Meta Quest 3 y Meta Quest 3S** mediante **WebXR** directo sin necesidad de instalar aplicaciones nativas.
