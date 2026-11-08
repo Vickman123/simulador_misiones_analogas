@@ -1,0 +1,16 @@
+{
+  "name": "Mars Analog Mission — SPACE Tech Labs",
+  "short_name": "Mars Analog",
+  "description": "Simulador inmersivo de misiones análogas a Marte para Desktop y Meta Quest WebXR",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0c10",
+  "theme_color": "#ff5722",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "64x64 128x128 256x256",
+      "type": "image/svg+xml"
+    }
+  ]
+}

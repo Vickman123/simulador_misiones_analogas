@@ -1,0 +1,16 @@
+/**
+ * Mission Finite State Machine state definitions.
+ */
+
+export enum MissionState {
+  INITIALIZING = 'INITIALIZING',
+  BRIEFING = 'BRIEFING',
+  READY = 'READY',
+  ACTIVE = 'ACTIVE',
+  OBJECTIVE_COMPLETED = 'OBJECTIVE_COMPLETED',
+  EMERGENCY = 'EMERGENCY',
+  RECOVERY = 'RECOVERY',
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
+  PAUSED = 'PAUSED'
+}
