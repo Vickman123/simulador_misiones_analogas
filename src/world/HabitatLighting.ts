@@ -98,6 +98,41 @@ export class HabitatLighting {
         color: 0xffffff,
         intensity: 1.2,
         distance: 5.0
+      },
+      {
+        name: 'Task_MessHall',
+        pos: new THREE.Vector3(-6.5, 2.5, 1.8),
+        color: 0xffd180,
+        intensity: 1.6,
+        distance: 7.5
+      },
+      {
+        name: 'Task_CrewQuarters',
+        pos: new THREE.Vector3(-6.5, 2.5, -4.5),
+        color: 0xbbdefb,
+        intensity: 1.4,
+        distance: 7.5
+      },
+      {
+        name: 'Task_GeologyLab',
+        pos: new THREE.Vector3(6.5, 2.5, -3.2),
+        color: 0x69f0ae,
+        intensity: 1.6,
+        distance: 7.5
+      },
+      {
+        name: 'Task_SuitBay',
+        pos: new THREE.Vector3(6.2, 2.5, 4.2),
+        color: 0xffd600,
+        intensity: 1.7,
+        distance: 7.5
+      },
+      {
+        name: 'Task_ExteriorAirlock',
+        pos: new THREE.Vector3(11.8, 2.5, 5.5),
+        color: 0xffffff,
+        intensity: 2.0,
+        distance: 12.0
       }
     ];
 

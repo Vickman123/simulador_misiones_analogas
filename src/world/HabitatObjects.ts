@@ -34,6 +34,11 @@ export class HabitatObjects {
     this.buildScienceStation();
     this.buildResourceCabinet();
     this.buildAirlock();
+    this.buildMessHall();
+    this.buildCrewQuarters();
+    this.buildGeologyLab();
+    this.buildSuitBay();
+    this.buildMartianExteriorProps();
   }
 
   /**
@@ -575,6 +580,354 @@ export class HabitatObjects {
       }
     };
     InteractionManager.getInstance().register(interactable);
+  }
+
+  /**
+   * 1. Mess Hall & Galley: Dining, food packs, water dispenser, and crew social board.
+   */
+  private buildMessHall(): void {
+    const messHall = new THREE.Group();
+    messHall.name = 'MessHall';
+    messHall.position.set(-6.8, 0, 1.8);
+
+    // Communal dining table
+    const tableGeo = new THREE.BoxGeometry(2.4, 0.75, 1.2);
+    const tableMat = new THREE.MeshStandardMaterial({
+      color: 0x334155,
+      roughness: 0.3,
+      metalness: 0.6
+    });
+    const table = new THREE.Mesh(tableGeo, tableMat);
+    table.position.y = 0.375;
+    table.castShadow = true;
+    table.receiveShadow = true;
+    messHall.add(table);
+
+    // 4 astronaut benches/stools
+    const stoolGeo = new THREE.CylinderGeometry(0.2, 0.2, 0.45, 16);
+    const stoolMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.7 });
+    const stoolPositions = [
+      [-1.0, 0.8], [0, 0.8], [1.0, 0.8],
+      [-1.0, -0.8], [0, -0.8], [1.0, -0.8]
+    ];
+    for (const [sx, sz] of stoolPositions) {
+      const stool = new THREE.Mesh(stoolGeo, stoolMat);
+      stool.position.set(sx, 0.225, sz);
+      stool.castShadow = true;
+      messHall.add(stool);
+    }
+
+    // Space food ration packs on table
+    const foodColors = [0xff5722, 0x4caf50, 0x2196f3, 0xffeb3b];
+    for (let i = 0; i < 4; i++) {
+      const foodGeo = new THREE.BoxGeometry(0.25, 0.08, 0.18);
+      const foodMat = new THREE.MeshStandardMaterial({ color: foodColors[i], roughness: 0.4 });
+      const food = new THREE.Mesh(foodGeo, foodMat);
+      food.position.set(-0.6 + i * 0.4, 0.79, (i % 2 === 0 ? 0.2 : -0.2));
+      food.rotation.y = (i * 0.2) - 0.1;
+      messHall.add(food);
+    }
+
+    // Water & nutrient dispenser unit on wall
+    const dispenserGeo = new THREE.BoxGeometry(0.6, 1.2, 0.4);
+    const dispenserMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.8 });
+    const dispenser = new THREE.Mesh(dispenserGeo, dispenserMat);
+    dispenser.position.set(-1.6, 0.9, 0);
+    messHall.add(dispenser);
+
+    // Cyan glowing screen on dispenser
+    const dispScreenGeo = new THREE.PlaneGeometry(0.35, 0.25);
+    const dispScreenMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff });
+    const dispScreen = new THREE.Mesh(dispScreenGeo, dispScreenMat);
+    dispScreen.position.set(-1.6, 1.15, 0.21);
+    messHall.add(dispScreen);
+
+    const badge = this.createInteractionBadge('MessHall', 'ZONA DE COMEDOR Y CONVIVENCIA', 0xffd180, 1.85);
+    messHall.add(badge);
+
+    this.group.add(messHall);
+
+    const interactable: IInteractable = {
+      id: 'messHall',
+      name: 'Comedor y Convivencia de la Tripulación (Galley)',
+      actionPrompt: 'Consumir ración liofilizada y consultar plan de convivencia',
+      object3D: messHall,
+      canInteract: () => true,
+      onHoverStart: () => badge.scale.set(1.2, 1.2, 1.2),
+      onHoverEnd: () => badge.scale.set(1, 1, 1),
+      onInteract: () => {
+        EventBus.getInstance().emit('ui:notify', '🍲 Ración espacial consumida (Guiso liofilizado con electrolitos). Moral y energía de la tripulación al 100%.');
+        EventBus.getInstance().emit('achievement:check', 'ach_habitat_life');
+      }
+    };
+    InteractionManager.getInstance().register(interactable);
+  }
+
+  /**
+   * 2. Crew Quarters: Individual sleeping pods with thermal blankets and personal monitors.
+   */
+  private buildCrewQuarters(): void {
+    const quarters = new THREE.Group();
+    quarters.name = 'CrewQuarters';
+    quarters.position.set(-6.8, 0, -4.8);
+
+    // 3 Capsule Sleeping Berths
+    for (let i = 0; i < 3; i++) {
+      const berthGeo = new THREE.BoxGeometry(1.2, 1.0, 2.2);
+      const berthMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.6 });
+      const berth = new THREE.Mesh(berthGeo, berthMat);
+      berth.position.set((i - 1) * 1.5, 0.5, 0);
+      berth.castShadow = true;
+      quarters.add(berth);
+
+      // Mattress & blanket
+      const bedGeo = new THREE.BoxGeometry(1.0, 0.2, 1.9);
+      const bedMat = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.8 });
+      const bed = new THREE.Mesh(bedGeo, bedMat);
+      bed.position.set((i - 1) * 1.5, 1.0, 0);
+      quarters.add(bed);
+
+      // Thermal Pillow
+      const pillowGeo = new THREE.BoxGeometry(0.7, 0.12, 0.4);
+      const pillowMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8 });
+      const pillow = new THREE.Mesh(pillowGeo, pillowMat);
+      pillow.position.set((i - 1) * 1.5, 1.15, -0.7);
+      quarters.add(pillow);
+
+      // Personal reading light
+      const lightGeo = new THREE.SphereGeometry(0.05, 8, 8);
+      const lightMat = new THREE.MeshBasicMaterial({ color: 0xffe0b2 });
+      const lamp = new THREE.Mesh(lightGeo, lightMat);
+      lamp.position.set((i - 1) * 1.5 + 0.4, 1.3, -0.8);
+      quarters.add(lamp);
+    }
+
+    const badge = this.createInteractionBadge('CrewQuarters', 'DORMITORIOS TRIPULACIÓN', 0x90caf9, 1.95);
+    quarters.add(badge);
+
+    this.group.add(quarters);
+
+    const interactable: IInteractable = {
+      id: 'crewQuarters',
+      name: 'Camarotes de la Tripulación (Crew Berths)',
+      actionPrompt: 'Inspeccionar cabinas de descanso y ciclo circadiano',
+      object3D: quarters,
+      canInteract: () => true,
+      onHoverStart: () => badge.scale.set(1.2, 1.2, 1.2),
+      onHoverEnd: () => badge.scale.set(1, 1, 1),
+      onInteract: () => {
+        EventBus.getInstance().emit('ui:notify', '🛏️ Cabinas de descanso acústico. Ciclo circadiano sincronizado a 24 horas y 39 minutos (Sol marciano).');
+      }
+    };
+    InteractionManager.getInstance().register(interactable);
+  }
+
+  /**
+   * 3. Geology & Science Workbench: Rock sample trays, stereomicroscope, optical spectrometer.
+   */
+  private buildGeologyLab(): void {
+    const geoLab = new THREE.Group();
+    geoLab.name = 'GeologyLab';
+    geoLab.position.set(6.8, 0, -3.2);
+
+    // Workbench
+    const benchGeo = new THREE.BoxGeometry(2.4, 0.85, 1.1);
+    const benchMat = new THREE.MeshStandardMaterial({ color: 0x223042, metalness: 0.7, roughness: 0.3 });
+    const bench = new THREE.Mesh(benchGeo, benchMat);
+    bench.position.y = 0.425;
+    bench.castShadow = true;
+    geoLab.add(bench);
+
+    // Microscope model
+    const baseGeo = new THREE.BoxGeometry(0.3, 0.08, 0.3);
+    const scopeMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.8 });
+    const scopeBase = new THREE.Mesh(baseGeo, scopeMat);
+    scopeBase.position.set(-0.6, 0.88, 0);
+    geoLab.add(scopeBase);
+
+    const armGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.45, 12);
+    const arm = new THREE.Mesh(armGeo, scopeMat);
+    arm.position.set(-0.6, 1.1, -0.08);
+    arm.rotation.x = 0.2;
+    geoLab.add(arm);
+
+    // Rock sample trays on workbench
+    for (let r = 0; r < 3; r++) {
+      const rockGeo = new THREE.DodecahedronGeometry(0.09, 0);
+      const rockMat = new THREE.MeshStandardMaterial({ color: r === 0 ? 0x8d6e63 : (r === 1 ? 0xffb74d : 0x78909c), roughness: 0.9 });
+      const rock = new THREE.Mesh(rockGeo, rockMat);
+      rock.position.set(0.1 + r * 0.35, 0.92, 0.05);
+      geoLab.add(rock);
+    }
+
+    const badge = this.createInteractionBadge('GeologyLab', 'LABORATORIO DE GEOLOGÍA', 0x69f0ae, 1.95);
+    geoLab.add(badge);
+
+    this.group.add(geoLab);
+
+    const interactable: IInteractable = {
+      id: 'geologyBench',
+      name: 'Banco de Geología y Mineralogía Marciana',
+      actionPrompt: 'Analizar composición de muestras de regolito y rocas',
+      object3D: geoLab,
+      canInteract: () => true,
+      onHoverStart: () => badge.scale.set(1.2, 1.2, 1.2),
+      onHoverEnd: () => badge.scale.set(1, 1, 1),
+      onInteract: () => {
+        EventBus.getInstance().emit('ui:notify', '🔬 Espectrómetro de masas listo. Sal al exterior en EVA para recolectar muestras en la superficie.');
+      }
+    };
+    InteractionManager.getInstance().register(interactable);
+  }
+
+  /**
+   * 4. EVA Suit Bay: Wall racks with 2 EMU spacesuits (helmets, PLSS packs, golden visors).
+   */
+  private buildSuitBay(): void {
+    const suitBay = new THREE.Group();
+    suitBay.name = 'SuitBay';
+    suitBay.position.set(6.2, 0, 4.2);
+
+    // Wall rack frame
+    const rackGeo = new THREE.BoxGeometry(2.6, 2.4, 0.15);
+    const rackMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8 });
+    const rack = new THREE.Mesh(rackGeo, rackMat);
+    rack.position.set(0, 1.2, -0.6);
+    suitBay.add(rack);
+
+    // 2 EMU Spacesuits hanging in racks
+    const suitOffsets = [-0.65, 0.65];
+    for (const so of suitOffsets) {
+      const suitGroup = new THREE.Group();
+      suitGroup.position.set(so, 0.4, -0.3);
+
+      // Torso & Life Support PLSS backpack
+      const torsoGeo = new THREE.BoxGeometry(0.65, 0.85, 0.45);
+      const suitFabricMat = new THREE.MeshStandardMaterial({
+        color: 0xededed,
+        roughness: 0.6,
+        metalness: 0.1
+      });
+      const torso = new THREE.Mesh(torsoGeo, suitFabricMat);
+      torso.position.y = 1.0;
+      torso.castShadow = true;
+      suitGroup.add(torso);
+
+      // Golden Helmet Visor
+      const helmetGeo = new THREE.SphereGeometry(0.24, 16, 16);
+      const visorMat = new THREE.MeshStandardMaterial({
+        color: 0xffd700,
+        metalness: 0.95,
+        roughness: 0.05
+      });
+      const helmet = new THREE.Mesh(helmetGeo, visorMat);
+      helmet.position.set(0, 1.6, 0.08);
+      suitGroup.add(helmet);
+
+      // Legs / Boots
+      for (const lx of [-0.18, 0.18]) {
+        const legGeo = new THREE.CylinderGeometry(0.12, 0.14, 0.65, 12);
+        const leg = new THREE.Mesh(legGeo, suitFabricMat);
+        leg.position.set(lx, 0.35, 0);
+        suitGroup.add(leg);
+      }
+
+      suitBay.add(suitGroup);
+    }
+
+    const badge = this.createInteractionBadge('SuitBay', 'ESTACIÓN DE TRAJES EVA (SALIDA A MARTE)', 0xffd600, 2.3);
+    suitBay.add(badge);
+
+    this.group.add(suitBay);
+
+    const interactable: IInteractable = {
+      id: 'suitBay',
+      name: 'Estación de Trajes Espaciales EMU-MARS',
+      actionPrompt: 'Equipar traje presurizado y salir a explorar la superficie de Marte',
+      object3D: suitBay,
+      canInteract: () => true,
+      onHoverStart: () => badge.scale.set(1.2, 1.2, 1.2),
+      onHoverEnd: () => badge.scale.set(1, 1, 1),
+      onInteract: () => {
+        EventBus.getInstance().emit('eva:suitUp');
+      }
+    };
+    InteractionManager.getInstance().register(interactable);
+  }
+
+  /**
+   * 5. Martian Exterior Props: Collectible rock samples & exterior return airlock door.
+   */
+  private buildMartianExteriorProps(): void {
+    // Exterior return airlock bulkhead
+    const exteriorAirlock = new THREE.Group();
+    exteriorAirlock.name = 'ExteriorAirlock';
+    exteriorAirlock.position.set(11.8, 0, 5.5);
+
+    const doorGeo = new THREE.BoxGeometry(0.3, 2.6, 2.0);
+    const doorMat = new THREE.MeshStandardMaterial({ color: 0x2d3748, metalness: 0.9, roughness: 0.2 });
+    const door = new THREE.Mesh(doorGeo, doorMat);
+    door.position.y = 1.3;
+    door.castShadow = true;
+    exteriorAirlock.add(door);
+
+    const badge = this.createInteractionBadge('AirlockExterior', 'COMPUERTA EXTERIOR (INGRESAR AL HÁBITAT)', 0x00e5ff, 2.4);
+    exteriorAirlock.add(badge);
+
+    this.group.add(exteriorAirlock);
+
+    const interactableDoor: IInteractable = {
+      id: 'airlockExteriorDoor',
+      name: 'Compuerta Exterior del Airlock (Ingreso)',
+      actionPrompt: 'Entrar al hábitat, represurizar y retirar traje espacial',
+      object3D: exteriorAirlock,
+      canInteract: () => true,
+      onHoverStart: () => badge.scale.set(1.2, 1.2, 1.2),
+      onHoverEnd: () => badge.scale.set(1, 1, 1),
+      onInteract: () => {
+        EventBus.getInstance().emit('eva:returnInside');
+      }
+    };
+    InteractionManager.getInstance().register(interactableDoor);
+
+    // 3 Collectible Rock Samples on Mars Ground
+    const rockData = [
+      { id: 'rockSampleAlpha', name: 'Muestra Alfa (Basalto de Argyre)', pos: [18, 0.2, 8], color: 0x8d6e63, badgeColor: 0xff5722 },
+      { id: 'rockSampleBeta', name: 'Muestra Beta (Sulfatos Hidratados)', pos: [8, 0.2, 22], color: 0xffb74d, badgeColor: 0xffd600 },
+      { id: 'rockSampleGamma', name: 'Muestra Gamma (Hematita Marciana)', pos: [-20, 0.2, 16], color: 0x607d8b, badgeColor: 0x00e5ff }
+    ];
+
+    for (const r of rockData) {
+      const rockGroup = new THREE.Group();
+      rockGroup.name = r.id;
+      rockGroup.position.set(r.pos[0], r.pos[1], r.pos[2]);
+
+      const meshGeo = new THREE.DodecahedronGeometry(0.35, 1);
+      const meshMat = new THREE.MeshStandardMaterial({ color: r.color, roughness: 0.9, flatShading: true });
+      const rockMesh = new THREE.Mesh(meshGeo, meshMat);
+      rockMesh.castShadow = true;
+      rockGroup.add(rockMesh);
+
+      const rockBadge = this.createInteractionBadge(r.id, r.name, r.badgeColor, 0.9);
+      rockGroup.add(rockBadge);
+
+      this.group.add(rockGroup);
+
+      const rockInteractable: IInteractable = {
+        id: r.id,
+        name: r.name,
+        actionPrompt: 'Recolectar muestra geológica con el contenedor del traje',
+        object3D: rockGroup,
+        canInteract: () => true,
+        onHoverStart: () => rockBadge.scale.set(1.2, 1.2, 1.2),
+        onHoverEnd: () => rockBadge.scale.set(1, 1, 1),
+        onInteract: () => {
+          rockGroup.visible = false;
+          EventBus.getInstance().emit('eva:collectSample', r.id);
+        }
+      };
+      InteractionManager.getInstance().register(rockInteractable);
+    }
   }
 
   public update(delta: number): void {

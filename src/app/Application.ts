@@ -19,6 +19,7 @@ import { InteractionPanel } from '../ui/InteractionPanel';
 import { MissionReport } from '../ui/MissionReport';
 import { CertificateModal } from '../ui/CertificateModal';
 import { MissionAchievements } from '../mission/MissionAchievements';
+import { EVASystem } from '../systems/EVASystem';
 import { EventBus } from '../utils/EventBus';
 import { bindFastClick } from '../utils/DOMUtils';
 
@@ -105,6 +106,7 @@ export class Application {
     this.interactionPanel = new InteractionPanel();
     this.missionReport = new MissionReport();
     new CertificateModal();
+    EVASystem.getInstance().initDOM();
 
     this.modalPause = document.getElementById('modal-pause');
     this.btnSoundToggle = document.getElementById('btn-toggle-sound');
@@ -282,6 +284,7 @@ export class Application {
 
       // 3. Update Mission simulation & timer
       this.missionManager.update(delta);
+      EVASystem.getInstance().update(delta);
 
       // 4. Render Scene
       this.rendererManager.render(this.sceneManager.scene, this.cameraManager.camera);

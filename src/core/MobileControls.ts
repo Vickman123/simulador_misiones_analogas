@@ -26,6 +26,7 @@ export class MobileControls {
   private btnInteractEl: HTMLElement | null = null;
   private btnInteractLabelEl: HTMLElement | null = null;
   private btnSprintEl: HTMLElement | null = null;
+  private btnJumpEl: HTMLElement | null = null;
   private btnToggleObjectivesEl: HTMLElement | null = null;
   private btnCloseObjectivesEl: HTMLElement | null = null;
   private objectivesSidebarEl: HTMLElement | null = null;
@@ -75,6 +76,7 @@ export class MobileControls {
     this.btnInteractEl = document.getElementById('btn-mobile-interact');
     this.btnInteractLabelEl = document.getElementById('btn-mobile-interact-label');
     this.btnSprintEl = document.getElementById('btn-mobile-sprint');
+    this.btnJumpEl = document.getElementById('btn-mobile-jump');
     this.btnToggleObjectivesEl = document.getElementById('btn-toggle-objectives');
     this.btnCloseObjectivesEl = document.getElementById('btn-close-objectives');
     this.objectivesSidebarEl = document.querySelector('.hud-objectives-sidebar');
@@ -143,6 +145,17 @@ export class MobileControls {
     this.btnSprintEl?.addEventListener('click', (e) => {
       e.preventDefault();
       this.toggleSprint();
+    });
+
+    this.btnJumpEl?.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.inputManager.jump();
+    }, { passive: false });
+
+    this.btnJumpEl?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.inputManager.jump();
     });
 
     // 4. Sidebar objectives drawer toggle

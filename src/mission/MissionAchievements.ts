@@ -88,6 +88,27 @@ export const ACHIEVEMENTS_LIST: Achievement[] = [
     title: 'Comandante con Honores',
     description: 'Obtén 95+ puntos de distinción en el examen de Certificación Oficial.',
     category: 'mastery'
+  },
+  {
+    id: 'ach_mars_walker',
+    icon: '👨‍🚀',
+    title: 'Caminante de Marte',
+    description: 'Realiza tu primera caminata espacial EVA en la superficie de Marte con traje presurizado.',
+    category: 'operational'
+  },
+  {
+    id: 'ach_geologist',
+    icon: '💎',
+    title: 'Geólogo Marciano',
+    description: 'Recolecta las 3 muestras minerales en la superficie marciana durante una EVA.',
+    category: 'science'
+  },
+  {
+    id: 'ach_habitat_life',
+    icon: '🍲',
+    title: 'Vida en el Hábitat',
+    description: 'Consume una ración de astronauta en la zona de comedor y convivencia.',
+    category: 'operational'
   }
 ];
 
@@ -163,6 +184,10 @@ export class MissionAchievements {
     // 6b. Tutorial & Certification specific completions
     EventBus.getInstance().on('tutorial:completed', () => {
       this.unlock('ach_academy_grad');
+    });
+
+    EventBus.getInstance().on('achievement:check', (achievementId: string) => {
+      this.unlock(achievementId);
     });
 
     EventBus.getInstance().on('certification:completed', (data: { report: ScoreReport }) => {

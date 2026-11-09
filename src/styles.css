@@ -2186,3 +2186,156 @@ body.is-mobile .mobile-brief-hint {
     gap: 14px;
   }
 }
+
+/* ==========================================================================
+   Astronaut Helmet HUD (EVA Spacesuit Visor Layer)
+   ========================================================================== */
+.helmet-hud-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 85;
+  overflow: hidden;
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.75), inset 0 0 40px rgba(255, 170, 0, 0.15);
+}
+
+.helmet-visor-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 40px;
+  border: 12px solid rgba(20, 26, 36, 0.65);
+  box-sizing: border-box;
+}
+
+.visor-glare-top {
+  position: absolute;
+  top: 0;
+  left: 10%;
+  width: 80%;
+  height: 35px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, transparent 100%);
+  border-radius: 50%;
+  filter: blur(8px);
+}
+
+.visor-glare-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 15%;
+  width: 70%;
+  height: 25px;
+  background: linear-gradient(0deg, rgba(255, 170, 0, 0.12) 0%, transparent 100%);
+  filter: blur(10px);
+}
+
+.helmet-telemetry-panel {
+  position: absolute;
+  background: rgba(10, 16, 26, 0.82);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  border-radius: 10px;
+  padding: 8px 14px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+}
+
+.helmet-telemetry-panel.top-left {
+  top: 75px;
+  left: 20px;
+}
+
+.helmet-telemetry-panel.top-right {
+  top: 75px;
+  right: 20px;
+}
+
+.telemetry-badge {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--tech-cyan);
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+  padding-bottom: 2px;
+}
+
+.suit-metric-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  margin: 3px 0;
+}
+
+.metric-key {
+  color: var(--text-secondary);
+}
+
+.metric-val {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.cyan-glow {
+  color: var(--tech-cyan);
+  text-shadow: 0 0 8px var(--tech-cyan);
+}
+
+.green-glow {
+  color: #00e676;
+  text-shadow: 0 0 8px #00e676;
+}
+
+.gold-glow {
+  color: #ffd700;
+  text-shadow: 0 0 8px #ffd700;
+}
+
+.helmet-crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: 30px;
+  opacity: 0.45;
+  color: var(--tech-cyan);
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+}
+
+.btn-jump {
+  background: rgba(255, 215, 0, 0.15) !important;
+  border-color: #ffd700 !important;
+  color: #ffd700 !important;
+}
+
+.btn-jump:active {
+  background: rgba(255, 215, 0, 0.35) !important;
+  transform: scale(0.95);
+}
+
+@media (max-width: 768px) {
+  .helmet-telemetry-panel.top-left {
+    top: 60px;
+    left: 10px;
+    padding: 6px 10px;
+  }
+  .helmet-telemetry-panel.top-right {
+    top: 60px;
+    right: 10px;
+    padding: 6px 10px;
+  }
+  .suit-metric-row {
+    font-size: 0.65rem;
+    gap: 8px;
+  }
+}

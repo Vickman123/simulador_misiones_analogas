@@ -22,6 +22,11 @@ export class InputManager {
   private touchMoveZ = 0;
   private touchRunning = false;
 
+  // EVA Martian outdoor mode & gravity
+  private isEVAMode: boolean = false;
+  private isJumping: boolean = false;
+  private verticalVelocity: number = 0;
+
   // Key states
   private keys: Record<string, boolean> = {
     KeyW: false,
@@ -32,7 +37,8 @@ export class InputManager {
     ArrowLeft: false,
     ArrowDown: false,
     ArrowRight: false,
-    ShiftLeft: false
+    ShiftLeft: false,
+    Space: false
   };
 
   private velocity = new THREE.Vector3();
@@ -61,6 +67,18 @@ export class InputManager {
     document.addEventListener('pointerlockchange', this.onPointerLockChange);
     document.addEventListener('mousemove', this.onMouseMove);
     this.domElement.addEventListener('click', this.onCanvasClick);
+
+    EventBus.getInstance().on('eva:stateChanged', (data: { isOutdoors: boolean }) => {
+      if (data.isOutdoors) {
+        this.setEVAMode(true, new THREE.Vector3(12.6, 0, 5.5));
+      } else {
+        this.setEVAMode(false, new THREE.Vector3(5.5, 0, 3.8));
+      }
+    });
+
+    EventBus.getInstance().on('eva:jump', () => {
+      this.jump();
+    });
   }
 
   private onKeyDown = (e: KeyboardEvent): void => {
@@ -68,6 +86,10 @@ export class InputManager {
 
     if (e.code in this.keys) {
       this.keys[e.code] = true;
+    }
+
+    if (e.code === 'Space') {
+      this.jump();
     }
 
     if (e.code === 'KeyE') {
@@ -156,6 +178,20 @@ export class InputManager {
   public update(delta: number): void {
     if (!this.isEnabled) return;
 
+    // 1. Martian Low-Gravity Vertical Jumping physics during EVA
+    if (this.isEVAMode) {
+      if (this.isJumping || this.cameraRig.position.y > 0) {
+        this.verticalVelocity += CONFIG.EVA.MARS_GRAVITY * delta;
+        this.cameraRig.position.y += this.verticalVelocity * delta;
+
+        if (this.cameraRig.position.y <= 0) {
+          this.cameraRig.position.y = 0;
+          this.verticalVelocity = 0;
+          this.isJumping = false;
+        }
+      }
+    }
+
     // Movement calculation combining desktop keyboard and mobile touch joystick
     const keyMoveZ = Number(this.keys.KeyW || this.keys.ArrowUp) - Number(this.keys.KeyS || this.keys.ArrowDown);
     const keyMoveX = Number(this.keys.KeyD || this.keys.ArrowRight) - Number(this.keys.KeyA || this.keys.ArrowLeft);
@@ -182,29 +218,67 @@ export class InputManager {
     if (this.velocity.lengthSq() > 0.0001) {
       const newPos = this.cameraRig.position.clone().addScaledVector(this.velocity, delta);
 
-      // Constrain position within habitat walkable area with obstacle avoidance
-      const constrained = MathUtils.clampToHabitatWalkable(newPos.x, newPos.z, {
-        minX: -CONFIG.HABITAT.WALKABLE_RADIUS,
-        maxX: CONFIG.HABITAT.WALKABLE_RADIUS,
-        minZ: -CONFIG.HABITAT.WALKABLE_RADIUS,
-        maxZ: CONFIG.HABITAT.WALKABLE_RADIUS,
-        obstacles: this.obstacles
-      });
-
-      // Circular habitat boundary check
-      const distFromCenter = Math.sqrt(constrained.x * constrained.x + constrained.z * constrained.z);
-      if (distFromCenter > CONFIG.HABITAT.WALKABLE_RADIUS) {
-        const factor = CONFIG.HABITAT.WALKABLE_RADIUS / distFromCenter;
-        this.cameraRig.position.x = constrained.x * factor;
-        this.cameraRig.position.z = constrained.z * factor;
+      if (this.isEVAMode) {
+        // EVA Outdoors Movement on Mars: Allow roaming up to 85 meters away
+        const distFromCenter = Math.sqrt(newPos.x * newPos.x + newPos.z * newPos.z);
+        if (distFromCenter > CONFIG.EVA.OUTDOORS_MAX_RADIUS) {
+          const factor = CONFIG.EVA.OUTDOORS_MAX_RADIUS / distFromCenter;
+          this.cameraRig.position.x = newPos.x * factor;
+          this.cameraRig.position.z = newPos.z * factor;
+        } else if (distFromCenter < CONFIG.HABITAT.RADIUS + 0.2 && !(newPos.x > 10.5 && newPos.z > 3.8 && newPos.z < 7.2)) {
+          // Prevent walking through outer wall of habitat unless at the airlock ramp
+          const factor = (CONFIG.HABITAT.RADIUS + 0.2) / distFromCenter;
+          this.cameraRig.position.x = newPos.x * factor;
+          this.cameraRig.position.z = newPos.z * factor;
+        } else {
+          this.cameraRig.position.x = newPos.x;
+          this.cameraRig.position.z = newPos.z;
+        }
       } else {
-        this.cameraRig.position.x = constrained.x;
-        this.cameraRig.position.z = constrained.z;
+        // Constrain position within habitat walkable area with obstacle avoidance
+        const constrained = MathUtils.clampToHabitatWalkable(newPos.x, newPos.z, {
+          minX: -CONFIG.HABITAT.WALKABLE_RADIUS,
+          maxX: CONFIG.HABITAT.WALKABLE_RADIUS,
+          minZ: -CONFIG.HABITAT.WALKABLE_RADIUS,
+          maxZ: CONFIG.HABITAT.WALKABLE_RADIUS,
+          obstacles: this.obstacles
+        });
+
+        const distFromCenter = Math.sqrt(constrained.x * constrained.x + constrained.z * constrained.z);
+        if (distFromCenter > CONFIG.HABITAT.WALKABLE_RADIUS) {
+          const factor = CONFIG.HABITAT.WALKABLE_RADIUS / distFromCenter;
+          this.cameraRig.position.x = constrained.x * factor;
+          this.cameraRig.position.z = constrained.z * factor;
+        } else {
+          this.cameraRig.position.x = constrained.x;
+          this.cameraRig.position.z = constrained.z;
+        }
       }
     }
 
     // Update raycast against interactables
     InteractionManager.getInstance().updateDesktop(this.camera);
+  }
+
+  public jump(): void {
+    if (this.isEVAMode && !this.isJumping) {
+      this.verticalVelocity = CONFIG.EVA.JUMP_VELOCITY;
+      this.isJumping = true;
+    }
+  }
+
+  public setEVAMode(active: boolean, teleportPos?: THREE.Vector3): void {
+    this.isEVAMode = active;
+    if (teleportPos) {
+      this.cameraRig.position.copy(teleportPos);
+    }
+    this.velocity.set(0, 0, 0);
+    this.verticalVelocity = 0;
+    this.isJumping = false;
+  }
+
+  public getIsEVAMode(): boolean {
+    return this.isEVAMode;
   }
 
   public setEnabled(enabled: boolean): void {
