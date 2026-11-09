@@ -224,7 +224,7 @@ export class InputManager {
     if (!this.isEnabled) return;
 
     // 1. Vertical Physics & Martian low-gravity terrain tracking
-    const groundElevation = MathUtils.getMartianTerrainHeight(this.cameraRig.position.x, this.cameraRig.position.z);
+    const groundElevation = MathUtils.getPlayerWalkHeight(this.cameraRig.position.x, this.cameraRig.position.z);
 
     if (this.isEVAMode) {
       if (this.isJumping) {

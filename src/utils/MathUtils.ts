@@ -28,39 +28,53 @@ export class MathUtils {
   }
 
   /**
-   * Deterministic Martian terrain elevation profile matching HabitatEnvironment.
-   * Inside the habitat (dist <= 17.5m): y = 0.0 (interior floor).
-   * Airlock ramp (x from 17.5 to 24.0, z from 5.8 to 9.2): smooth transition from 0.0 to -0.65m.
-   * Martian exterior (dist > 17.5m): base -0.65m with procedural undulating dunes, hills and crater rims.
+   * Elevation of the physical 3D Martian terrain mesh outside the habitat.
+   * Underneath the habitat (dist <= 22.0m): returns -0.85m to ensure the orange
+   * bedrock sits deep below the white cleanroom floor (y = 0.0) with zero Z-fighting.
+   * Outside (dist > 22.0m): generates procedural undulating dunes, hills, and crater rims.
    */
   public static getMartianTerrainHeight(x: number, z: number): number {
     const dist = Math.sqrt(x * x + z * z);
 
-    // 1. Inside Habitat
-    if (dist <= 17.5 && !(x >= 17.0 && z >= 5.8 && z <= 9.2)) {
-      return 0.0;
-    }
-
-    // 2. Airlock Ramp Zone: x in [17.0, 24.0], z in [5.8, 9.2]
-    if (x >= 17.0 && x <= 24.0 && z >= 5.8 && z <= 9.2) {
-      const t = MathUtils.clamp((x - 17.0) / 7.0, 0, 1);
-      return MathUtils.lerp(0.0, -0.65, t);
-    }
-
-    // 3. Clear flat apron around the habitat base
-    const clearRadius = 23.5;
+    // 1. Underneath habitat foundation and surrounding buffer apron:
+    // Kept strictly at y = -0.85m to prevent any terrain polygon from clipping into the habitat floor
+    const clearRadius = 22.5;
     if (dist <= clearRadius) {
-      return -0.65;
+      return -0.85;
     }
 
-    // 4. Martian Dunes, Hills, and North Crater Rim
+    // 2. Martian Dunes, Hills, and North Crater Rim
     const blend = Math.min(1.0, Math.max(0.0, (dist - clearRadius) / 8.0));
     const rawWave = Math.sin(x * 0.035) * 3.0 + Math.cos(z * 0.03) * 3.2 + Math.sin((x + z) * 0.07) * 1.5;
     let waveHeight = rawWave;
     if (z < -40) {
       waveHeight += Math.pow(Math.abs(z + 40) * 0.12, 1.4);
     }
-    return -0.65 + blend * (waveHeight + 0.3);
+    return -0.85 + blend * (waveHeight + 0.5);
+  }
+
+  /**
+   * Surface walking height for the player and collectible props.
+   * Inside habitat: y = 0.0 (epoxy floor).
+   * On exterior ramp (x from 17.5 to 23.5, z from 5.8 to 9.2): ramps smoothly from 0.0 down to -0.85m.
+   * Outdoors on Mars: exactly matches the terrain mesh surface.
+   */
+  public static getPlayerWalkHeight(x: number, z: number): number {
+    const dist = Math.sqrt(x * x + z * z);
+
+    // Inside habitat (cleanroom floor is at y = 0.0)
+    if (dist <= 17.5 && !(x >= 17.2 && z >= 5.8 && z <= 9.2)) {
+      return 0.0;
+    }
+
+    // Exterior airlock ramp
+    if (x >= 17.2 && x <= 23.8 && z >= 5.8 && z <= 9.2) {
+      const t = MathUtils.clamp((x - 17.2) / 6.6, 0, 1);
+      return MathUtils.lerp(0.0, -0.85, t);
+    }
+
+    // Martian terrain surface
+    return MathUtils.getMartianTerrainHeight(x, z);
   }
 
   /**

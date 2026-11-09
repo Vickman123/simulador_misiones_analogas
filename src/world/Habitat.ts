@@ -33,6 +33,18 @@ export class Habitat {
     const radius = CONFIG.HABITAT.RADIUS;
     const height = CONFIG.HABITAT.HEIGHT;
 
+    // 0. Heavy-Duty Structural Foundation Pad anchored into Martian regolith
+    const foundationGeo = new THREE.CylinderGeometry(radius + 0.1, radius + 0.35, 0.9, 48);
+    const foundationMat = new THREE.MeshStandardMaterial({
+      color: 0x1e293b,
+      roughness: 0.85,
+      metalness: 0.2
+    });
+    const foundation = new THREE.Mesh(foundationGeo, foundationMat);
+    foundation.position.y = -0.45; // Spans from y = 0.0 down to y = -0.90
+    foundation.receiveShadow = true;
+    this.group.add(foundation);
+
     // 1. Pristine White Cleanroom Epoxy Floor with Matte-Black Seams
     const floorTexture = AssetLoader.getInstance().createFloorTexture();
     const floorGeo = new THREE.CylinderGeometry(radius, radius, 0.2, 36);
@@ -380,29 +392,31 @@ export class Habitat {
     });
 
     // Airlock exit vestibule platform
-    const platformGeo = new THREE.BoxGeometry(4.0, 0.25, 3.6);
+    const platformGeo = new THREE.BoxGeometry(2.0, 0.2, 3.6);
     const platform = new THREE.Mesh(platformGeo, rampMat);
-    platform.position.set(radius + 0.6, -0.05, 7.5);
+    platform.position.set(radius + 0.5, -0.1, 7.5);
     rampGroup.add(platform);
 
-    // Sloped ramp down to Martian soil
-    const rampGeo = new THREE.BoxGeometry(5.5, 0.18, 3.0);
+    // Sloped ramp down to Martian soil (from x = 18.5 to x = 24.0, smoothly connects floor at 0.0 to terrain at -0.85)
+    const rampLength = Math.hypot(5.5, 0.85);
+    const rampSlopeAngle = Math.atan2(-0.85, 5.5);
+    const rampGeo = new THREE.BoxGeometry(rampLength, 0.16, 3.2);
     const ramp = new THREE.Mesh(rampGeo, rampMat);
-    ramp.position.set(radius + 4.2, -0.18, 7.5);
-    ramp.rotation.z = 0.08;
+    ramp.position.set(18.5 + 5.5 / 2, -0.425, 7.5);
+    ramp.rotation.z = rampSlopeAngle;
     rampGroup.add(ramp);
 
     // Yellow hazard safety strip along ramp edge
-    const stripGeo = new THREE.BoxGeometry(5.5, 0.05, 0.12);
+    const stripGeo = new THREE.BoxGeometry(rampLength, 0.05, 0.12);
     const stripMat = new THREE.MeshBasicMaterial({ color: 0xffd600 });
     const strip1 = new THREE.Mesh(stripGeo, stripMat);
-    strip1.position.set(radius + 4.2, -0.06, 6.0);
-    strip1.rotation.z = 0.08;
+    strip1.position.set(18.5 + 5.5 / 2, -0.34, 5.9);
+    strip1.rotation.z = rampSlopeAngle;
     rampGroup.add(strip1);
 
     const strip2 = new THREE.Mesh(stripGeo, stripMat);
-    strip2.position.set(radius + 4.2, -0.06, 9.0);
-    strip2.rotation.z = 0.08;
+    strip2.position.set(18.5 + 5.5 / 2, -0.34, 9.1);
+    strip2.rotation.z = rampSlopeAngle;
     rampGroup.add(strip2);
 
     this.group.add(rampGroup);
