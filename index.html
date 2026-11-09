@@ -11,8 +11,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <script type="module" crossorigin src="./assets/index-BYi4yveE.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-CkRL_OZM.css">
+  <script type="module" crossorigin src="./assets/index-BMquMjeh.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-CpK0qRSo.css">
 </head>
 <body class="mars-sim-body">
   <!-- 3D Canvas Container -->
@@ -176,6 +176,10 @@
 
     <!-- Bottom-Right: Action & Sprint Controls -->
     <div class="mobile-action-buttons">
+      <button id="btn-mobile-jump" class="btn-mobile-action btn-jump" type="button" title="Saltar en baja gravedad marciana (0.38g)">
+        <span class="btn-icon">🦘</span>
+        <span class="btn-sub">SALTAR</span>
+      </button>
       <button id="btn-mobile-sprint" class="btn-mobile-action btn-sprint" type="button" title="Alternar correr/caminar">
         <span class="btn-icon">⚡</span>
         <span class="btn-sub">CAMINAR</span>
@@ -186,6 +190,44 @@
         </div>
         <span id="btn-mobile-interact-label" class="btn-label">INTERACTUAR</span>
       </button>
+    </div>
+  </div>
+
+  <!-- Astronaut Helmet HUD (Active when EMU Spacesuit is donned during Martian EVA) -->
+  <div id="helmet-hud" class="helmet-hud-layer hidden">
+    <div class="helmet-visor-frame">
+      <div class="visor-glare-top"></div>
+      <div class="visor-glare-bottom"></div>
+    </div>
+    <div class="helmet-telemetry-panel top-left">
+      <div class="telemetry-badge">EMU-MARS SUIT // EVA ONLINE</div>
+      <div class="suit-metric-row">
+        <span class="metric-key">O₂ TRAJE:</span>
+        <span id="suit-o2-val" class="metric-val cyan-glow">100.0%</span>
+      </div>
+      <div class="suit-metric-row">
+        <span class="metric-key">PRESIÓN INTERNA:</span>
+        <span id="suit-press-val" class="metric-val">29.6 kPa</span>
+      </div>
+      <div class="suit-metric-row">
+        <span class="metric-key">BATERÍA PLSS:</span>
+        <span id="suit-bat-val" class="metric-val">100%</span>
+      </div>
+    </div>
+    <div class="helmet-telemetry-panel top-right">
+      <div class="telemetry-badge">GRAVEDAD MARTE // 0.38G</div>
+      <div class="suit-metric-row">
+        <span class="metric-key">RITMO CARDÍACO:</span>
+        <span id="suit-hr-val" class="metric-val green-glow">78 BPM</span>
+      </div>
+      <div class="suit-metric-row">
+        <span class="metric-key">MUESTRAS GEOLÓGICAS:</span>
+        <span id="suit-samples-val" class="metric-val gold-glow">0/3</span>
+      </div>
+    </div>
+    <div class="helmet-crosshair">
+      <div class="crosshair-bracket left">[</div>
+      <div class="crosshair-bracket right">]</div>
     </div>
   </div>
 
