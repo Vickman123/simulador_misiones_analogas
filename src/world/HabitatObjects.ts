@@ -3,6 +3,7 @@ import { CONFIG } from '../app/Configuration';
 import { AssetLoader } from '../utils/AssetLoader';
 import { InteractionManager, IInteractable } from '../core/InteractionManager';
 import { EventBus } from '../utils/EventBus';
+import { MathUtils } from '../utils/MathUtils';
 
 export class HabitatObjects {
   public readonly group: THREE.Group;
@@ -1237,7 +1238,8 @@ export class HabitatObjects {
     for (const r of rockData) {
       const rockGroup = new THREE.Group();
       rockGroup.name = r.id;
-      rockGroup.position.set(r.pos[0], r.pos[1], r.pos[2]);
+      const rockTerrainY = MathUtils.getMartianTerrainHeight(r.pos[0], r.pos[2]);
+      rockGroup.position.set(r.pos[0], rockTerrainY + 0.35, r.pos[2]);
 
       const meshGeo = new THREE.DodecahedronGeometry(0.4, 1);
       const meshMat = new THREE.MeshStandardMaterial({ color: r.color, roughness: 0.9, flatShading: true });

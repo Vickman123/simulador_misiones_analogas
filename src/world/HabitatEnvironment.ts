@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { CONFIG } from '../app/Configuration';
+import { MathUtils } from '../utils/MathUtils';
 
 /**
  * Procedural Martian terrain, atmospheric dust particles, and celestial sky.
@@ -65,26 +66,7 @@ export class HabitatEnvironment {
     for (let i = 0; i < pos.count; i++) {
       const x = pos.getX(i);
       const z = pos.getZ(i);
-      const dist = Math.sqrt(x * x + z * z);
-
-      // Protect expanded habitat interior (radius 17.5) and exterior ramp (+X direction around z: 5.5 to 7.5)
-      const isNearRamp = x >= 14.0 && x <= 26.0 && z >= 2.0 && z <= 10.0;
-      const clearRadius = isNearRamp ? 28.0 : (CONFIG.HABITAT.RADIUS + 6.0); // at least 23.5m
-
-      let y = -0.65; // Foundation base well below floor (floor is at y = 0.0)
-
-      if (dist > clearRadius && !isNearRamp) {
-        // Smooth transition blend weight from 0 at clearRadius to 1 at clearRadius + 8
-        const blend = Math.min(1.0, Math.max(0.0, (dist - clearRadius) / 8.0));
-        const rawWave = Math.sin(x * 0.035) * 3.0 + Math.cos(z * 0.03) * 3.2 + Math.sin((x + z) * 0.07) * 1.5;
-        let waveHeight = rawWave;
-        // Distant crater rim to the north
-        if (z < -40) {
-          waveHeight += Math.pow(Math.abs(z + 40) * 0.12, 1.4);
-        }
-        y = -0.65 + blend * (waveHeight + 0.3);
-      }
-      pos.setY(i, y);
+      pos.setY(i, MathUtils.getMartianTerrainHeight(x, z));
     }
     terrainGeo.computeVertexNormals();
 

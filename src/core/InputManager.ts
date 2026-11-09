@@ -4,6 +4,7 @@ import { InteractionManager } from './InteractionManager';
 import { MathUtils, BoundingBox2D } from '../utils/MathUtils';
 import { EventBus } from '../utils/EventBus';
 import { PlatformManager } from '../app/PlatformManager';
+import { EVASystem } from '../systems/EVASystem';
 
 export class InputManager {
   private camera: THREE.PerspectiveCamera;
@@ -47,26 +48,32 @@ export class InputManager {
   // Precise architectural wall partitions & furniture collision boundaries (17.5m Habitat)
   private wallBoxes: BoundingBox2D[] = [
     // --- WEST WING PARTITIONS (x = -5.0) ---
-    // North wall segment (North of Crew Quarters doorway)
-    { minX: -5.16, maxX: -4.84, minZ: -16.5, maxZ: -5.5 },
-    // Center wall segment (between Crew Quarters doorway z:[-5.5, -2.0] and Mess Hall doorway z:[2.0, 5.5])
-    { minX: -5.16, maxX: -4.84, minZ: -2.0, maxZ: 2.0 },
+    // North wall segment (North of Crew Quarters doorway z:[-5.5, -2.0])
+    { minX: -5.14, maxX: -4.86, minZ: -16.8, maxZ: -5.5 },
+    // Center wall segment (between Crew Quarters doorway and Mess Hall doorway z:[2.0, 5.5])
+    { minX: -5.14, maxX: -4.86, minZ: -2.0, maxZ: 2.0 },
     // South wall segment (South of Mess Hall doorway)
-    { minX: -5.16, maxX: -4.84, minZ: 5.5, maxZ: 16.5 },
+    { minX: -5.14, maxX: -4.86, minZ: 5.5, maxZ: 16.8 },
     // Divider wall between Crew Quarters (North) and Mess Hall (South) along z = 0.0
-    { minX: -16.5, maxX: -5.0, minZ: -0.16, maxZ: 0.16 },
+    { minX: -16.8, maxX: -4.86, minZ: -0.14, maxZ: 0.14 },
 
     // --- EAST WING PARTITIONS (x = 5.0) ---
-    // North wall segment (North of Science Lab doorway)
-    { minX: 4.84, maxX: 5.16, minZ: -16.5, maxZ: -5.5 },
-    // Center wall segment (between Science Lab doorway z:[-5.5, -2.0] and Suit Bay doorway z:[2.0, 5.5])
-    { minX: 4.84, maxX: 5.16, minZ: -2.0, maxZ: 2.0 },
+    // North wall segment (North of Science Lab doorway z:[-5.5, -2.0])
+    { minX: 4.86, maxX: 5.14, minZ: -16.8, maxZ: -5.5 },
+    // Center wall segment (between Science Lab doorway and Suit Bay doorway z:[2.0, 5.5])
+    { minX: 4.86, maxX: 5.14, minZ: -2.0, maxZ: 2.0 },
     // South wall segment (South of Suit Bay doorway)
-    { minX: 4.84, maxX: 5.16, minZ: 5.5, maxZ: 16.5 },
+    { minX: 4.86, maxX: 5.14, minZ: 5.5, maxZ: 16.8 },
     // Divider wall between Science Lab (North) and Suit Bay (South) along z = 0.0
-    { minX: 5.0, maxX: 16.5, minZ: -0.16, maxZ: 0.16 },
+    { minX: 4.86, maxX: 16.8, minZ: -0.14, maxZ: 0.14 },
 
-    // --- FURNITURE OBSTACLES ---
+    // --- AIRLOCK PORTAL FLANKING WALLS (x = 17.0) ---
+    // North of airlock ramp doorway (z < 5.8)
+    { minX: 16.8, maxX: 17.6, minZ: 0.14, maxZ: 5.8 },
+    // South of airlock ramp doorway (z > 9.2)
+    { minX: 16.8, maxX: 17.6, minZ: 9.2, maxZ: 16.8 },
+
+    // --- FURNITURE & STATION CONSOLES ---
     // Central Hub: Mission Control Console at (0, -9.5)
     { minX: -2.2, maxX: 2.2, minZ: -10.3, maxZ: -8.7 },
     // Central Hub: Hologram Projector Pedestal at (0, -2.5)
@@ -108,9 +115,9 @@ export class InputManager {
 
     EventBus.getInstance().on('eva:stateChanged', (data: { isOutdoors: boolean }) => {
       if (data.isOutdoors) {
-        this.setEVAMode(true, new THREE.Vector3(19.2, 0, 7.5));
+        this.setEVAMode(true, new THREE.Vector3(19.2, -0.15, 7.5));
       } else {
-        this.setEVAMode(false, new THREE.Vector3(12.5, 0, 7.0));
+        this.setEVAMode(false, new THREE.Vector3(14.0, 0.0, 7.5));
       }
     });
 
@@ -216,18 +223,27 @@ export class InputManager {
   public update(delta: number): void {
     if (!this.isEnabled) return;
 
-    // 1. Martian Low-Gravity Vertical Jumping physics during EVA
+    // 1. Vertical Physics & Martian low-gravity terrain tracking
+    const groundElevation = MathUtils.getMartianTerrainHeight(this.cameraRig.position.x, this.cameraRig.position.z);
+
     if (this.isEVAMode) {
-      if (this.isJumping || this.cameraRig.position.y > 0) {
+      if (this.isJumping) {
         this.verticalVelocity += CONFIG.EVA.MARS_GRAVITY * delta;
         this.cameraRig.position.y += this.verticalVelocity * delta;
 
-        if (this.cameraRig.position.y <= 0) {
-          this.cameraRig.position.y = 0;
+        if (this.cameraRig.position.y <= groundElevation) {
+          this.cameraRig.position.y = groundElevation;
           this.verticalVelocity = 0;
           this.isJumping = false;
         }
+      } else {
+        // Smoothly adapt astronaut elevation to match Martian dunes, hills, and ramps
+        const curY = this.cameraRig.position.y;
+        this.cameraRig.position.y = MathUtils.lerp(curY, groundElevation, Math.min(1.0, delta * 18.0));
       }
+    } else {
+      // Inside habitat: stay firmly at cleanroom floor level y = 0.0
+      this.cameraRig.position.y = MathUtils.lerp(this.cameraRig.position.y, 0.0, Math.min(1.0, delta * 15.0));
     }
 
     // Movement calculation combining desktop keyboard and mobile touch joystick
@@ -254,18 +270,38 @@ export class InputManager {
     }
 
     if (this.velocity.lengthSq() > 0.0001) {
+      const oldX = this.cameraRig.position.x;
+      const oldZ = this.cameraRig.position.z;
       const newPos = this.cameraRig.position.clone().addScaledVector(this.velocity, delta);
 
+      // Airlock portal corridor leading to the ramp (x from 12.0 to 24.0, z from 5.8 to 9.2)
+      const isInAirlockCorridor = (newPos.x >= 12.0 && newPos.x <= 25.0 && newPos.z >= 5.8 && newPos.z <= 9.2);
+
+      // Seamless automatic EVA suit donning & doffing when crossing the airlock threshold
+      if (!this.isEVAMode && newPos.x > 18.0 && isInAirlockCorridor) {
+        if (!EVASystem.getInstance().getIsSuitDonned()) {
+          EVASystem.getInstance().donSuitAndExit();
+        } else {
+          this.setEVAMode(true);
+        }
+      } else if (this.isEVAMode && newPos.x < 17.0 && isInAirlockCorridor) {
+        if (EVASystem.getInstance().getIsSuitDonned()) {
+          EVASystem.getInstance().doffSuitAndEnter();
+        } else {
+          this.setEVAMode(false);
+        }
+      }
+
       if (this.isEVAMode) {
-        // EVA Outdoors Movement on Mars: Allow roaming up to 85 meters away
+        // --- OUTDOORS EVA ON MARS ---
         const distFromCenter = Math.sqrt(newPos.x * newPos.x + newPos.z * newPos.z);
         if (distFromCenter > CONFIG.EVA.OUTDOORS_MAX_RADIUS) {
           const factor = CONFIG.EVA.OUTDOORS_MAX_RADIUS / distFromCenter;
           this.cameraRig.position.x = newPos.x * factor;
           this.cameraRig.position.z = newPos.z * factor;
-        } else if (distFromCenter < CONFIG.HABITAT.RADIUS + 0.2 && !(newPos.x > 10.5 && newPos.z > 3.8 && newPos.z < 7.2)) {
-          // Prevent walking through outer wall of habitat unless at the airlock ramp
-          const factor = (CONFIG.HABITAT.RADIUS + 0.2) / distFromCenter;
+        } else if (distFromCenter < 17.5 && !isInAirlockCorridor) {
+          // Cannot walk through exterior habitat wall unless at airlock ramp
+          const factor = 17.5 / distFromCenter;
           this.cameraRig.position.x = newPos.x * factor;
           this.cameraRig.position.z = newPos.z * factor;
         } else {
@@ -273,12 +309,20 @@ export class InputManager {
           this.cameraRig.position.z = newPos.z;
         }
       } else {
-        // Constrain position within habitat walkable area with sliding wall and obstacle collisions
-        const resolved = MathUtils.resolveCollisions(newPos.x, newPos.z, this.wallBoxes, 0.32);
+        // --- INSIDE HABITAT ---
+        // 1. Resolve architectural partitions and furniture obstacles with axis-separated continuous sliding
+        const resolved = MathUtils.resolveSlidingCollisions(
+          oldX,
+          oldZ,
+          newPos.x,
+          newPos.z,
+          this.wallBoxes,
+          0.32
+        );
 
-        // Enforce circular perimeter boundary of habitat
+        // 2. Circular perimeter constraint (radius 17.5, wall surface at 16.85m)
         const distFromCenter = Math.sqrt(resolved.x * resolved.x + resolved.z * resolved.z);
-        if (distFromCenter > CONFIG.HABITAT.WALKABLE_RADIUS) {
+        if (distFromCenter > CONFIG.HABITAT.WALKABLE_RADIUS && !isInAirlockCorridor) {
           const factor = CONFIG.HABITAT.WALKABLE_RADIUS / distFromCenter;
           this.cameraRig.position.x = resolved.x * factor;
           this.cameraRig.position.z = resolved.z * factor;

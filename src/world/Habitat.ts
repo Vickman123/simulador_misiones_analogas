@@ -111,10 +111,13 @@ export class Habitat {
 
     for (let i = 0; i < segments; i++) {
       const angle = i * angleStep;
+      const x = Math.cos(angle) * radius;
+      const z = Math.sin(angle) * radius;
+
       // Skip north-facing segments (around angle = -PI/2) for the panoramic observation window
       const isWindowOpening = i >= 13 && i <= 17;
-      // Leave opening at southeast for EVA Airlock exit door (around index 3)
-      const isAirlockExit = i === 3;
+      // Leave opening at East-Southeast for EVA Airlock exit door leading to the ramp (z around 7.5, x > 14)
+      const isAirlockExit = x > 14.0 && z >= 4.5 && z <= 10.5;
 
       if (!isWindowOpening && !isAirlockExit) {
         const segWidth = radius * 0.34;
@@ -139,9 +142,6 @@ export class Habitat {
         topMold.position.y = wallHeight - 0.07;
         wallSegmentGroup.add(topMold);
 
-        const x = Math.cos(angle) * radius;
-        const z = Math.sin(angle) * radius;
-
         wallSegmentGroup.position.set(x, 0, z);
         wallSegmentGroup.rotation.y = -angle + Math.PI / 2;
         this.group.add(wallSegmentGroup);
@@ -157,8 +157,13 @@ export class Habitat {
     });
 
     for (let i = 0; i < segments; i++) {
-      if (i === 3) continue; // Don't block airlock exit doorway
       const angle = i * angleStep;
+      const ribX = Math.cos(angle) * (radius - 0.1);
+      const ribZ = Math.sin(angle) * (radius - 0.1);
+
+      // Don't place a column in the middle of the airlock doorway
+      if (ribX > 14.0 && ribZ >= 4.5 && ribZ <= 10.5) continue;
+
       const ribGroup = new THREE.Group();
 
       const rib = new THREE.Mesh(ribGeo, ribMat);
@@ -175,7 +180,7 @@ export class Habitat {
       ribCap.position.y = wallHeight - 0.08;
       ribGroup.add(ribCap);
 
-      ribGroup.position.set(Math.cos(angle) * (radius - 0.1), 0, Math.sin(angle) * (radius - 0.1));
+      ribGroup.position.set(ribX, 0, ribZ);
       ribGroup.rotation.y = -angle;
       this.group.add(ribGroup);
     }

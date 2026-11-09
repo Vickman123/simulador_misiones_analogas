@@ -36,7 +36,7 @@ export const CONFIG = {
   HABITAT: {
     RADIUS: 17.5,
     HEIGHT: 4.6,
-    WALKABLE_RADIUS: 16.2,
+    WALKABLE_RADIUS: 16.85,
     WINDOW_WIDTH: 13.0,
     WINDOW_HEIGHT: 3.6,
     CAMERA_HEIGHT: 1.70 // Standard astronaut eye height in meters
