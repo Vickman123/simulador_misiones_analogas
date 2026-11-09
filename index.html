@@ -11,8 +11,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <script type="module" crossorigin src="./assets/index-OLwrDVtt.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-aH7yRsmC.css">
+  <script type="module" crossorigin src="./assets/index-BYi4yveE.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-CkRL_OZM.css">
 </head>
 <body class="mars-sim-body">
   <!-- 3D Canvas Container -->
@@ -213,6 +213,36 @@
           </div>
         </div>
 
+        <!-- Mode Selector: Tutorial, Standard, Certification -->
+        <div class="mission-mode-selector" id="mission-mode-selector">
+          <div class="mode-card" data-mode="tutorial">
+            <div class="mode-icon">🎓</div>
+            <div class="mode-info">
+              <div class="mode-badge">APRENDIZAJE</div>
+              <div class="mode-title">MODO TUTORIAL</div>
+              <div class="mode-desc">Aprende controles, desplazamiento y sistemas de soporte vital paso a paso.</div>
+            </div>
+          </div>
+
+          <div class="mode-card active" data-mode="standard">
+            <div class="mode-icon">🚀</div>
+            <div class="mode-info">
+              <div class="mode-badge">OPERATIVO</div>
+              <div class="mode-title">MISIÓN ESTÁNDAR</div>
+              <div class="mode-desc">Operación de rutina: diagnóstico, botánica y contingencia de filtro.</div>
+            </div>
+          </div>
+
+          <div class="mode-card mode-cert" data-mode="certification">
+            <div class="mode-icon">🎖️</div>
+            <div class="mode-info">
+              <div class="mode-badge gold-badge">EXAMEN OFICIAL</div>
+              <div class="mode-title">CERTIFICACIÓN REAL</div>
+              <div class="mode-desc">Evaluación rigurosa con tiempo límite y Diploma Oficial descargable con sello.</div>
+            </div>
+          </div>
+        </div>
+
         <div class="menu-actions">
           <button id="btn-start-desktop" class="btn-primary-large">
             <span class="btn-glow"></span>
@@ -307,6 +337,82 @@
     <div id="modal-report" class="modal-backdrop hidden">
       <div class="modal-card report-card" id="report-card-content">
         <!-- Dynamically populated by MissionReport UI -->
+      </div>
+    </div>
+
+    <!-- Official Astronaut Certificate Modal -->
+    <div id="modal-certificate" class="modal-backdrop hidden">
+      <div class="modal-card certificate-card">
+        <div class="certificate-inner" id="printable-certificate">
+          <div class="cert-gold-border"></div>
+          <div class="cert-header">
+            <div class="cert-emblem-badge">✦ SPACE TECH LABS • MARS ANALOG RESEARCH PROGRAM ✦</div>
+            <h1 class="cert-title">CERTIFICADO OFICIAL DE ASTRONAUTA ANÁLOGO</h1>
+            <p class="cert-subtitle">Acreditación de Capacitación Operacional en Hábitat Marciano — Estación Argyre Planitia</p>
+            <div class="cert-divider-line"></div>
+          </div>
+          <div class="cert-body">
+            <p class="cert-intro">Se certifica formalmente que el/la tripulante análogo(a):</p>
+            <div class="cert-name-box">
+              <input type="text" id="cert-astronaut-name" class="cert-astronaut-input" value="Cadete Astronauta" placeholder="Escribe tu nombre completo aquí" title="Haz clic para escribir tu nombre" />
+              <div class="cert-name-hint">✎ Haz clic para escribir tu nombre antes de imprimir o guardar</div>
+            </div>
+            <p class="cert-declaration">
+              Ha superado con distinción las pruebas de evaluación operacional, demostrando dominio en sistemas de soporte vital y regeneración ambiental (ECLSS), botánica marciana (BIOGROWTH-01), hermeticidad de esclusa exterior y resolución de contingencias críticas bajo condiciones de aislamiento.
+            </p>
+
+            <div class="cert-metrics-row">
+              <div class="cert-metric-box">
+                <span class="cert-metric-label">RANGO CONCEDIDO</span>
+                <span id="cert-rank-display" class="cert-metric-val gold-highlight">COMANDANTE ANÁLOGO DE ÉLITE</span>
+              </div>
+              <div class="cert-metric-box">
+                <span class="cert-metric-label">CALIFICACIÓN OPERACIONAL</span>
+                <span id="cert-score-display" class="cert-metric-val">95 / 100 PTS</span>
+              </div>
+              <div class="cert-metric-box">
+                <span class="cert-metric-label">TIEMPO DE EVALUACIÓN</span>
+                <span id="cert-time-display" class="cert-metric-val">04:15.2</span>
+              </div>
+              <div class="cert-metric-box">
+                <span class="cert-metric-label">REGISTRO CRIPTOGRÁFICO</span>
+                <span id="cert-id-display" class="cert-metric-val cert-code">STL-MARS-2026-F93A</span>
+              </div>
+            </div>
+
+            <div class="cert-signatures-row">
+              <div class="cert-sign-col">
+                <div class="cert-signature-name">Dr. Alex Vance</div>
+                <div class="cert-sign-label">Director de Operaciones Análogas</div>
+                <div class="cert-sign-sub">SPACE Tech Labs Research Division</div>
+              </div>
+              <div class="cert-seal-col">
+                <div class="cert-hologram-seal">
+                  <div class="seal-ring">
+                    <span class="seal-star">★ ★ ★</span>
+                    <span class="seal-org">SPACE TECH LABS</span>
+                    <span class="seal-status">CERTIFIED</span>
+                    <span class="seal-date">2026</span>
+                  </div>
+                </div>
+              </div>
+              <div class="cert-sign-col">
+                <div class="cert-signature-name">Capcom Orbital</div>
+                <div class="cert-sign-label">Comando de Telemetría Terrestre</div>
+                <div class="cert-sign-sub">Flight Control Center</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cert-actions-bar no-print">
+            <button id="btn-print-certificate" class="btn-primary-large" type="button">
+              <span>🖨️</span> IMPRIMIR / GUARDAR EN PDF
+            </button>
+            <button id="btn-close-certificate" class="btn-secondary-large" type="button">
+              VOLVER AL MENÚ
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
