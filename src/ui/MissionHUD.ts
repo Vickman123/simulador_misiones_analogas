@@ -2,10 +2,11 @@ import { EventBus } from '../utils/EventBus';
 import { MissionManager } from '../mission/MissionManager';
 import { MissionState } from '../mission/MissionState';
 import { LifeSupportTelemetry } from '../systems/LifeSupportSystem';
+import { ResourceSystem } from '../systems/ResourceSystem';
 import { IInteractable } from '../core/InteractionManager';
 
 /**
- * Manages the in-game 2D HUD (top status bar, objectives sidebar, emergency banner, reticle).
+ * Manages the in-game 2D HUD (top status bar, objectives sidebar, emergency banner, guide banner, reticle).
  */
 export class MissionHUD {
   private timerEl: HTMLElement | null;
@@ -14,6 +15,11 @@ export class MissionHUD {
   private progressFillEl: HTMLElement | null;
   private objectivesListEl: HTMLElement | null;
   private emergencyBannerEl: HTMLElement | null;
+
+  // Real-time dynamic objective guide
+  private guideBannerEl: HTMLElement | null;
+  private guideInstructionEl: HTMLElement | null;
+  private guideHintEl: HTMLElement | null;
 
   // Mini telemetry
   private telO2El: HTMLElement | null;
@@ -33,6 +39,10 @@ export class MissionHUD {
     this.objectivesListEl = document.getElementById('hud-objectives-list');
     this.emergencyBannerEl = document.getElementById('emergency-banner');
 
+    this.guideBannerEl = document.getElementById('objective-guide-banner');
+    this.guideInstructionEl = document.getElementById('guide-instruction');
+    this.guideHintEl = document.getElementById('guide-hint');
+
     this.telO2El = document.getElementById('tel-o2');
     this.telCo2El = document.getElementById('tel-co2');
     this.telPressEl = document.getElementById('tel-press');
@@ -43,6 +53,7 @@ export class MissionHUD {
 
     this.bindEvents();
     this.renderObjectives();
+    this.updateGuideBanner();
   }
 
   private bindEvents(): void {
@@ -54,6 +65,17 @@ export class MissionHUD {
     // Objective updates
     EventBus.getInstance().on('mission:objectiveUpdated', () => {
       this.renderObjectives();
+      this.updateGuideBanner();
+    });
+
+    // Resource acquisition
+    EventBus.getInstance().on('resources:itemRetrieved', () => {
+      this.updateGuideBanner();
+    });
+
+    // Emergency start
+    EventBus.getInstance().on('emergency:started', () => {
+      this.updateGuideBanner();
     });
 
     // Life support updates
@@ -78,6 +100,7 @@ export class MissionHUD {
 
     // State changes (Emergency banner toggle)
     EventBus.getInstance().on('mission:stateChanged', (data: { current: MissionState }) => {
+      this.updateGuideBanner();
       if (this.emergencyBannerEl) {
         if (data.current === MissionState.EMERGENCY) {
           this.emergencyBannerEl.classList.remove('hidden');
@@ -140,6 +163,43 @@ export class MissionHUD {
       li.appendChild(icon);
       li.appendChild(descBox);
       this.objectivesListEl.appendChild(li);
+    }
+  }
+
+  public updateGuideBanner(): void {
+    if (!this.guideInstructionEl || !this.guideHintEl) return;
+    const mission = MissionManager.getInstance().getActiveMission();
+    const objectives = mission.getObjectives();
+    const state = MissionManager.getInstance().getState();
+
+    if (state === MissionState.COMPLETED) {
+      this.guideInstructionEl.textContent = '✅ ¡MISIÓN 001 COMPLETADA CON ÉXITO!';
+      this.guideHintEl.textContent = 'Revisa tu informe de evaluación y logros operacionales obtenidos.';
+      return;
+    }
+
+    const currentObj = objectives.find((o) => o.isCurrent) || objectives.find((o) => !o.isCompleted);
+    if (!currentObj) {
+      this.guideInstructionEl.textContent = '✅ Objetivos primarios concluidos';
+      this.guideHintEl.textContent = 'Generando evaluación final de misión...';
+      return;
+    }
+
+    if (currentObj.id === 'obj_inspection') {
+      this.guideInstructionEl.textContent = 'PASO 1: Dirígete a la Consola de Soporte Vital';
+      this.guideHintEl.textContent = 'Sigue el marcador azul [1. SOPORTE VITAL] a tu izquierda e inicia el diagnóstico.';
+    } else if (currentObj.id === 'obj_science') {
+      this.guideInstructionEl.textContent = 'PASO 2: Dirígete a la Estación de Ciencias';
+      this.guideHintEl.textContent = 'Sigue el marcador verde [2. CIENCIA BIOLÓGICA] a tu derecha y calibra BIOGROWTH-01.';
+    } else if (currentObj.id === 'obj_emergency') {
+      const hasFilter = ResourceSystem.getInstance().hasItem('filter_hepa_c1');
+      if (!hasFilter) {
+        this.guideInstructionEl.textContent = '⚠️ PASO 3: Ve al Almacén por el filtro de repuesto';
+        this.guideHintEl.textContent = 'Sigue el marcador ámbar [3. ALMACÉN Y REPUESTOS] al fondo y extrae el filtro HEPA-C1.';
+      } else {
+        this.guideInstructionEl.textContent = '🛠️ PASO 4: Regresa a Soporte Vital para el reemplazo';
+        this.guideHintEl.textContent = 'Ve a [1. SOPORTE VITAL] y ejecuta los 5 pasos del procedimiento de reemplazo.';
+      }
     }
   }
 }

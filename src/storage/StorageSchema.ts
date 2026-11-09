@@ -22,6 +22,7 @@ export interface UserProgressData {
   soundEnabled: boolean;
   lastMissionDate: string | null;
   history: MissionRunLog[];
+  unlockedAchievements: string[];
 }
 
 export const DEFAULT_STORAGE_DATA: UserProgressData = {
@@ -32,5 +33,6 @@ export const DEFAULT_STORAGE_DATA: UserProgressData = {
   totalRuns: 0,
   soundEnabled: true,
   lastMissionDate: null,
-  history: []
+  history: [],
+  unlockedAchievements: []
 };

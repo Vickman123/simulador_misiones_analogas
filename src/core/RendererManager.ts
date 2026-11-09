@@ -16,7 +16,7 @@ export class RendererManager {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setPixelRatio(CONFIG.GRAPHICS.DESKTOP_PIXEL_RATIO);
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.1;
+    this.renderer.toneMappingExposure = 1.35;
 
     if (CONFIG.GRAPHICS.SHADOWS_ENABLED) {
       this.renderer.shadowMap.enabled = true;

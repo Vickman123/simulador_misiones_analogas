@@ -17,6 +17,7 @@ import { MissionBriefing } from '../ui/MissionBriefing';
 import { MissionHUD } from '../ui/MissionHUD';
 import { InteractionPanel } from '../ui/InteractionPanel';
 import { MissionReport } from '../ui/MissionReport';
+import { MissionAchievements } from '../mission/MissionAchievements';
 import { EventBus } from '../utils/EventBus';
 import { bindFastClick } from '../utils/DOMUtils';
 
@@ -96,6 +97,7 @@ export class Application {
 
     // 5. Initialize Mission Systems & UI
     this.missionManager = MissionManager.getInstance();
+    MissionAchievements.getInstance();
     this.mainMenu = new MainMenu();
     this.briefing = new MissionBriefing();
     this.hud = new MissionHUD();

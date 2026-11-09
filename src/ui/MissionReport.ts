@@ -3,6 +3,7 @@ import { ScoreReport } from '../mission/MissionScoring';
 import { MathUtils } from '../utils/MathUtils';
 import { MissionManager } from '../mission/MissionManager';
 import { AudioManager } from '../core/AudioManager';
+import { MissionAchievements } from '../mission/MissionAchievements';
 
 export class MissionReport {
   private modalEl: HTMLElement | null;
@@ -86,6 +87,30 @@ export class MissionReport {
         <ul style="margin: 6px 0 0 18px;">
           ${report.recommendations.map((rec) => `<li>${rec}</li>`).join('')}
         </ul>
+      </div>
+
+      <!-- Logros Obtenidos -->
+      <div class="report-achievements-box" style="margin-top: 20px; text-align: left;">
+        <div style="font-family: var(--font-display); font-size: 1.1rem; color: var(--tech-cyan); font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+          <span>🏆 REGISTRO DE LOGROS OPERACIONALES</span>
+          <span style="font-size: 0.85rem; font-family: var(--font-mono); color: var(--text-secondary);">
+            ${MissionAchievements.getInstance().getAllAchievements().filter((a) => a.isUnlocked).length} / ${MissionAchievements.getInstance().getAllAchievements().length} DESBLOQUEADOS
+          </span>
+        </div>
+        <div class="report-achievements-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px;">
+          ${MissionAchievements.getInstance().getAllAchievements().map(({ achievement, isUnlocked }) => `
+            <div style="background: ${isUnlocked ? 'rgba(0, 229, 255, 0.08)' : 'rgba(255, 255, 255, 0.03)'}; border: 1px solid ${isUnlocked ? 'var(--tech-cyan)' : 'rgba(255,255,255,0.1)'}; border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; gap: 12px; opacity: ${isUnlocked ? '1' : '0.5'};">
+              <span style="font-size: 1.8rem; filter: ${isUnlocked ? 'none' : 'grayscale(100%)'};">${achievement.icon}</span>
+              <div>
+                <div style="font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; color: ${isUnlocked ? '#fff' : 'var(--text-dim)'};">${achievement.title}</div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.2; margin-top: 2px;">${achievement.description}</div>
+                <div style="font-size: 0.68rem; font-family: var(--font-mono); color: ${isUnlocked ? 'var(--tech-green)' : 'var(--text-dim)'}; margin-top: 4px;">
+                  ${isUnlocked ? '✓ DESBLOQUEADO' : '🔒 BLOQUEADO'}
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
       </div>
 
       <div style="display: flex; gap: 16px; margin-top: 20px;">

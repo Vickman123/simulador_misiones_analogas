@@ -23,6 +23,7 @@ export class HabitatObjects {
 
   // Filter cartridge in cabinet
   public filterCartridgeMesh!: THREE.Mesh;
+  private animTime: number = 0;
 
   constructor() {
     this.group = new THREE.Group();
@@ -36,32 +37,81 @@ export class HabitatObjects {
   }
 
   /**
-   * Helper to attach a glowing holographic ring indicator above interactables
+   * Helper to attach a glowing holographic ring indicator and floating sign above interactables
    */
-  private createInteractionBadge(name: string, yOffset = 1.6): THREE.Group {
+  private createInteractionBadge(name: string, labelText: string, colorHex: number = CONFIG.COLORS.TECH_CYAN, yOffset = 1.6): THREE.Group {
     const badgeGroup = new THREE.Group();
     badgeGroup.position.y = yOffset;
     badgeGroup.name = `Badge_${name}`;
 
-    // Floating pulsing ring
-    const ringGeo = new THREE.RingGeometry(0.12, 0.16, 24);
+    // Floating pulsing ring (larger for better visibility)
+    const ringGeo = new THREE.RingGeometry(0.24, 0.32, 32);
     const ringMat = new THREE.MeshBasicMaterial({
-      color: CONFIG.COLORS.TECH_CYAN,
+      color: colorHex,
       side: THREE.DoubleSide,
       transparent: true,
-      opacity: 0.8
+      opacity: 0.85
     });
     const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.name = 'badge_ring';
     ring.rotation.x = Math.PI / 2;
     badgeGroup.add(ring);
 
-    // Center icon diamond
-    const iconGeo = new THREE.OctahedronGeometry(0.06, 0);
+    // Center icon diamond (floating octahedron)
+    const iconGeo = new THREE.OctahedronGeometry(0.12, 0);
     const iconMat = new THREE.MeshBasicMaterial({
-      color: 0xffffff
+      color: 0xffffff,
+      wireframe: false
     });
     const icon = new THREE.Mesh(iconGeo, iconMat);
+    icon.name = 'badge_diamond';
     badgeGroup.add(icon);
+
+    // Holographic billboard text badge
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        // High-contrast semi-translucent dark pill
+        ctx.fillStyle = 'rgba(8, 12, 22, 0.88)';
+        ctx.beginPath();
+        const hexStr = `#${colorHex.toString(16).padStart(6, '0')}`;
+        ctx.roundRect(16, 16, 480, 96, 24);
+        ctx.fill();
+
+        ctx.strokeStyle = hexStr;
+        ctx.lineWidth = 5;
+        ctx.stroke();
+
+        // Neon Glow border effect
+        ctx.shadowColor = hexStr;
+        ctx.shadowBlur = 12;
+
+        // Label Text
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 36px "Rajdhani", "Orbitron", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(labelText, 256, 64);
+
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.minFilter = THREE.LinearFilter;
+        const spriteMat = new THREE.SpriteMaterial({
+          map: texture,
+          transparent: true,
+          depthTest: false
+        });
+        const sprite = new THREE.Sprite(spriteMat);
+        sprite.name = 'badge_sprite';
+        sprite.scale.set(1.5, 0.38, 1);
+        sprite.position.set(0, 0.38, 0);
+        badgeGroup.add(sprite);
+      }
+    } catch (e) {
+      // Fallback if canvas is unavailable
+    }
 
     return badgeGroup;
   }
@@ -110,7 +160,7 @@ export class HabitatObjects {
     bezel.rotation.copy(screen.rotation);
     this.missionControlPanel.add(bezel);
 
-    const badge = this.createInteractionBadge('MissionControl', 1.9);
+    const badge = this.createInteractionBadge('MissionControl', 'CENTRO DE CONTROL', CONFIG.COLORS.TECH_CYAN, 1.95);
     this.missionControlPanel.add(badge);
 
     this.group.add(this.missionControlPanel);
@@ -169,7 +219,7 @@ export class HabitatObjects {
     screen.position.set(0, 1.15, 0.46);
     this.lifeSupportConsole.add(screen);
 
-    const badge = this.createInteractionBadge('LifeSupport', 2.0);
+    const badge = this.createInteractionBadge('LifeSupport', '1. SOPORTE VITAL', 0x00e5ff, 2.05);
     this.lifeSupportConsole.add(badge);
 
     this.group.add(this.lifeSupportConsole);
@@ -338,7 +388,7 @@ export class HabitatObjects {
     screen.rotation.y = 0.2;
     this.scienceStation.add(screen);
 
-    const badge = this.createInteractionBadge('ScienceStation', 1.95);
+    const badge = this.createInteractionBadge('ScienceStation', '2. CIENCIA BIOLÓGICA', CONFIG.COLORS.TECH_GREEN, 2.0);
     this.scienceStation.add(badge);
 
     this.group.add(this.scienceStation);
@@ -446,7 +496,7 @@ export class HabitatObjects {
     const ring = new THREE.Mesh(ringGeo, ringMat);
     this.filterCartridgeMesh.add(ring);
 
-    const badge = this.createInteractionBadge('ResourceCabinet', 2.2);
+    const badge = this.createInteractionBadge('ResourceCabinet', '3. ALMACÉN Y REPUESTOS', CONFIG.COLORS.TECH_AMBER, 2.25);
     this.resourceCabinet.add(badge);
 
     this.group.add(this.resourceCabinet);
@@ -503,7 +553,7 @@ export class HabitatObjects {
     panel.position.set(0.65, 1.2, 0.16);
     this.airlockPanel.add(panel);
 
-    const badge = this.createInteractionBadge('Airlock', 2.3);
+    const badge = this.createInteractionBadge('Airlock', 'ESCLUSA DE SALIDA EVA', 0x90caf9, 2.35);
     this.airlockPanel.add(badge);
 
     this.group.add(this.airlockPanel);
@@ -528,10 +578,20 @@ export class HabitatObjects {
   }
 
   public update(delta: number): void {
-    // Subtle rotation of holographic interaction badges
+    this.animTime += delta;
+    // Animate holographic interaction badges: rotation and smooth bobbing
     const badges = this.group.children.flatMap((g) => g.children.filter((c) => c.name.startsWith('Badge_')));
     for (const b of badges) {
-      b.rotation.y += delta * 1.5;
+      const ring = b.getObjectByName('badge_ring');
+      const diamond = b.getObjectByName('badge_diamond');
+      if (ring) {
+        ring.rotation.z += delta * 1.5;
+      }
+      if (diamond) {
+        diamond.rotation.y += delta * 2.0;
+        diamond.rotation.x += delta * 1.0;
+        diamond.position.y = Math.sin(this.animTime * 3) * 0.05;
+      }
     }
   }
 }

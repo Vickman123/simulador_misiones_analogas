@@ -95,6 +95,26 @@ export class ProgressStorage {
     this.saveData();
   }
 
+  public unlockAchievement(id: string): boolean {
+    if (!this.memoryCache.unlockedAchievements) {
+      this.memoryCache.unlockedAchievements = [];
+    }
+    if (this.memoryCache.unlockedAchievements.includes(id)) {
+      return false; // Already unlocked
+    }
+    this.memoryCache.unlockedAchievements.push(id);
+    this.saveData();
+    return true;
+  }
+
+  public isAchievementUnlocked(id: string): boolean {
+    return (this.memoryCache.unlockedAchievements || []).includes(id);
+  }
+
+  public getUnlockedAchievements(): string[] {
+    return this.memoryCache.unlockedAchievements || [];
+  }
+
   public clearProgress(): void {
     this.memoryCache = { ...DEFAULT_STORAGE_DATA };
     if (this.isStorageAvailable) {
