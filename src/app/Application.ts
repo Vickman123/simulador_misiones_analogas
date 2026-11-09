@@ -151,6 +151,55 @@ export class Application {
       this.togglePause();
     });
 
+    // Fullscreen Toggles (HUD, Main Menu, Pause Menu)
+    const toggleFullscreen = () => {
+      this.audioManager.playClick();
+      if (!document.fullscreenElement && !(document as any).webkitFullscreenElement) {
+        const docEl = document.documentElement as any;
+        if (docEl.requestFullscreen) {
+          docEl.requestFullscreen().catch(() => {});
+        } else if (docEl.webkitRequestFullscreen) {
+          docEl.webkitRequestFullscreen();
+        }
+      } else {
+        const doc = document as any;
+        if (doc.exitFullscreen) {
+          doc.exitFullscreen().catch(() => {});
+        } else if (doc.webkitExitFullscreen) {
+          doc.webkitExitFullscreen();
+        }
+      }
+    };
+
+    const updateFullscreenUI = () => {
+      const isFs = !!(document.fullscreenElement || (document as any).webkitFullscreenElement);
+      const btnFsToggle = document.getElementById('btn-fullscreen-toggle');
+      if (btnFsToggle) {
+        const icon = btnFsToggle.querySelector('.fs-icon');
+        if (icon) icon.textContent = isFs ? '✕' : '⛶';
+        btnFsToggle.classList.toggle('is-fullscreen', isFs);
+        btnFsToggle.setAttribute('title', isFs ? 'Salir de pantalla completa' : 'Pantalla completa');
+      }
+
+      const btnMenuFs = document.getElementById('btn-menu-fullscreen');
+      if (btnMenuFs) {
+        const label = btnMenuFs.querySelector('.btn-label');
+        if (label) label.textContent = isFs ? 'SALIR DE PANTALLA COMPLETA' : 'PANTALLA COMPLETA';
+      }
+
+      const btnPauseFs = document.getElementById('btn-pause-fullscreen');
+      if (btnPauseFs) {
+        btnPauseFs.textContent = isFs ? 'PANTALLA COMPLETA: DESACTIVAR' : 'PANTALLA COMPLETA: ACTIVAR';
+      }
+    };
+
+    bindFastClick(document.getElementById('btn-fullscreen-toggle'), toggleFullscreen);
+    bindFastClick(document.getElementById('btn-menu-fullscreen'), toggleFullscreen);
+    bindFastClick(document.getElementById('btn-pause-fullscreen'), toggleFullscreen);
+
+    document.addEventListener('fullscreenchange', updateFullscreenUI);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
+
     bindFastClick(document.getElementById('btn-resume-mission'), () => {
       this.audioManager.playClick();
       this.resume();

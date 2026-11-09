@@ -58,7 +58,7 @@ export class HabitatEnvironment {
 
   private createMartianTerrain(): void {
     // Large undulating ground outside the habitat
-    const terrainGeo = new THREE.PlaneGeometry(260, 260, 64, 64);
+    const terrainGeo = new THREE.PlaneGeometry(320, 320, 64, 64);
     terrainGeo.rotateX(-Math.PI / 2);
 
     const pos = terrainGeo.attributes.position;
@@ -67,20 +67,20 @@ export class HabitatEnvironment {
       const z = pos.getZ(i);
       const dist = Math.sqrt(x * x + z * z);
 
-      // Protect habitat interior (radius 11.5) and exterior ramp (+X direction around z: 5.5)
-      const isNearRamp = x >= 8.0 && x <= 20.0 && z >= 2.0 && z <= 9.0;
-      const clearRadius = isNearRamp ? 21.0 : (CONFIG.HABITAT.RADIUS + 6.0); // at least 17.5m
+      // Protect expanded habitat interior (radius 17.5) and exterior ramp (+X direction around z: 5.5 to 7.5)
+      const isNearRamp = x >= 14.0 && x <= 26.0 && z >= 2.0 && z <= 10.0;
+      const clearRadius = isNearRamp ? 28.0 : (CONFIG.HABITAT.RADIUS + 6.0); // at least 23.5m
 
       let y = -0.65; // Foundation base well below floor (floor is at y = 0.0)
 
       if (dist > clearRadius && !isNearRamp) {
         // Smooth transition blend weight from 0 at clearRadius to 1 at clearRadius + 8
         const blend = Math.min(1.0, Math.max(0.0, (dist - clearRadius) / 8.0));
-        const rawWave = Math.sin(x * 0.04) * 2.5 + Math.cos(z * 0.035) * 2.8 + Math.sin((x + z) * 0.08) * 1.2;
+        const rawWave = Math.sin(x * 0.035) * 3.0 + Math.cos(z * 0.03) * 3.2 + Math.sin((x + z) * 0.07) * 1.5;
         let waveHeight = rawWave;
         // Distant crater rim to the north
-        if (z < -30) {
-          waveHeight += Math.pow(Math.abs(z + 30) * 0.12, 1.4);
+        if (z < -40) {
+          waveHeight += Math.pow(Math.abs(z + 40) * 0.12, 1.4);
         }
         y = -0.65 + blend * (waveHeight + 0.3);
       }
@@ -108,21 +108,21 @@ export class HabitatEnvironment {
       metalness: 0.1
     });
 
-    const rockCount = 50;
+    const rockCount = 55;
     for (let i = 0; i < rockCount; i++) {
       const angle = Math.random() * Math.PI * 2;
-      // Spawn only outside habitat clear radius (minimum 19.5m)
-      const radius = 19.5 + Math.random() * 65;
+      // Spawn only outside habitat clear radius (minimum 26.5m)
+      const radius = 26.5 + Math.random() * 75;
       const rx = Math.cos(angle) * radius;
       const rz = Math.sin(angle) * radius;
 
       // Ensure no rocks land on the airlock ramp approach
-      if (rx > 9.0 && rx < 22.0 && rz > 1.5 && rz < 9.5) {
+      if (rx > 14.0 && rx < 28.0 && rz > 1.5 && rz < 10.5) {
         continue;
       }
 
       const rock = new THREE.Mesh(rockGeo, rockMat);
-      const scale = 0.4 + Math.random() * 1.4;
+      const scale = 0.5 + Math.random() * 1.8;
       rock.scale.set(scale, scale * (0.6 + Math.random() * 0.5), scale);
       rock.position.set(rx, scale * 0.35 - 0.3, rz);
       rock.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);

@@ -44,51 +44,51 @@ export class InputManager {
   private velocity = new THREE.Vector3();
   private direction = new THREE.Vector3();
 
-  // Precise architectural wall partitions & furniture collision boundaries
+  // Precise architectural wall partitions & furniture collision boundaries (17.5m Habitat)
   private wallBoxes: BoundingBox2D[] = [
-    // --- WEST WING PARTITIONS (x = -3.2) ---
+    // --- WEST WING PARTITIONS (x = -5.0) ---
     // North wall segment (North of Crew Quarters doorway)
-    { minX: -3.32, maxX: -3.08, minZ: -10.5, maxZ: -4.5 },
-    // Center wall segment (between Crew Quarters doorway z:[-4.5, -2.5] and Mess Hall doorway z:[0.5, 2.5])
-    { minX: -3.32, maxX: -3.08, minZ: -2.5, maxZ: 0.5 },
+    { minX: -5.16, maxX: -4.84, minZ: -16.5, maxZ: -5.5 },
+    // Center wall segment (between Crew Quarters doorway z:[-5.5, -2.0] and Mess Hall doorway z:[2.0, 5.5])
+    { minX: -5.16, maxX: -4.84, minZ: -2.0, maxZ: 2.0 },
     // South wall segment (South of Mess Hall doorway)
-    { minX: -3.32, maxX: -3.08, minZ: 2.5, maxZ: 10.5 },
-    // Divider wall between Crew Quarters (North) and Mess Hall (South) along z = -1.0
-    { minX: -10.5, maxX: -3.2, minZ: -1.12, maxZ: -0.88 },
+    { minX: -5.16, maxX: -4.84, minZ: 5.5, maxZ: 16.5 },
+    // Divider wall between Crew Quarters (North) and Mess Hall (South) along z = 0.0
+    { minX: -16.5, maxX: -5.0, minZ: -0.16, maxZ: 0.16 },
 
-    // --- EAST WING PARTITIONS (x = 3.2) ---
+    // --- EAST WING PARTITIONS (x = 5.0) ---
     // North wall segment (North of Science Lab doorway)
-    { minX: 3.08, maxX: 3.32, minZ: -10.5, maxZ: -4.5 },
-    // Center wall segment (between Science Lab doorway z:[-4.5, -2.5] and Suit Bay doorway z:[0.5, 2.5])
-    { minX: 3.08, maxX: 3.32, minZ: -2.5, maxZ: 0.5 },
+    { minX: 4.84, maxX: 5.16, minZ: -16.5, maxZ: -5.5 },
+    // Center wall segment (between Science Lab doorway z:[-5.5, -2.0] and Suit Bay doorway z:[2.0, 5.5])
+    { minX: 4.84, maxX: 5.16, minZ: -2.0, maxZ: 2.0 },
     // South wall segment (South of Suit Bay doorway)
-    { minX: 3.08, maxX: 3.32, minZ: 2.5, maxZ: 10.5 },
-    // Divider wall between Science Lab (North) and Suit Bay (South) along z = -1.0
-    { minX: 3.2, maxX: 10.5, minZ: -1.12, maxZ: -0.88 },
+    { minX: 4.84, maxX: 5.16, minZ: 5.5, maxZ: 16.5 },
+    // Divider wall between Science Lab (North) and Suit Bay (South) along z = 0.0
+    { minX: 5.0, maxX: 16.5, minZ: -0.16, maxZ: 0.16 },
 
     // --- FURNITURE OBSTACLES ---
-    // Central Hub: Mission Control Console at (0, -4.8)
-    { minX: -1.8, maxX: 1.8, minZ: -5.4, maxZ: -4.2 },
-    // Central Hub: Hologram Projector Pedestal at (0, -1.8)
-    { minX: -0.65, maxX: 0.65, minZ: -2.45, maxZ: -1.15 },
-    // Central Hub: Life Support Console at (-1.8, 3.8)
-    { minX: -2.8, maxX: -0.8, minZ: 3.3, maxZ: 4.3 },
-    // Central Hub: Resource Cabinet at (1.8, 3.8)
-    { minX: 0.8, maxX: 2.8, minZ: 3.3, maxZ: 4.3 },
+    // Central Hub: Mission Control Console at (0, -9.5)
+    { minX: -2.2, maxX: 2.2, minZ: -10.3, maxZ: -8.7 },
+    // Central Hub: Hologram Projector Pedestal at (0, -2.5)
+    { minX: -0.9, maxX: 0.9, minZ: -3.4, maxZ: -1.6 },
+    // Central Hub: Life Support Console at (-2.8, 6.0)
+    { minX: -4.1, maxX: -1.5, minZ: 5.4, maxZ: 6.6 },
+    // Central Hub: Resource Cabinet at (2.8, 6.0)
+    { minX: 1.8, maxX: 3.8, minZ: 5.4, maxZ: 6.6 },
 
-    // Science Lab (Zona 03): BIOGROWTH-01 Workbench at (6.0, -3.2)
-    { minX: 4.8, maxX: 7.2, minZ: -3.8, maxZ: -2.6 },
-    // Science Lab (Zona 03): Geology Workbench at (7.5, -6.0)
-    { minX: 6.3, maxX: 8.7, minZ: -6.6, maxZ: -5.4 },
+    // Science Lab (Zona 03): BIOGROWTH-01 Workbench at (9.5, -4.8)
+    { minX: 8.0, maxX: 11.0, minZ: -5.8, maxZ: -3.8 },
+    // Science Lab (Zona 03): Geology Workbench at (11.5, -10.5)
+    { minX: 9.8, maxX: 13.2, minZ: -11.2, maxZ: -9.8 },
 
-    // Mess Hall (Zona 01): Dining Table & Stools at (-6.8, 4.5)
-    { minX: -8.0, maxX: -5.6, minZ: 3.6, maxZ: 5.4 },
+    // Mess Hall (Zona 01): Dining Table & Stools at (-10.5, 7.0)
+    { minX: -12.3, maxX: -8.7, minZ: 5.8, maxZ: 8.2 },
 
-    // Crew Quarters (Zona 02): Sleeping Berths at (-6.8, -5.5)
-    { minX: -8.6, maxX: -5.0, minZ: -6.6, maxZ: -4.4 },
+    // Crew Quarters (Zona 02): Sleeping Berths at (-10.5, -8.0)
+    { minX: -13.8, maxX: -7.2, minZ: -9.3, maxZ: -6.7 },
 
-    // Suit Bay (Zona 04): Spacesuit Rack Gantry at (6.2, 3.5)
-    { minX: 4.9, maxX: 7.5, minZ: 2.9, maxZ: 4.1 }
+    // Suit Bay (Zona 04): Spacesuit Rack Gantry at (9.5, 5.0)
+    { minX: 7.9, maxX: 11.1, minZ: 4.2, maxZ: 5.8 }
   ];
 
   constructor(camera: THREE.PerspectiveCamera, cameraRig: THREE.Group, domElement: HTMLElement) {
@@ -108,9 +108,9 @@ export class InputManager {
 
     EventBus.getInstance().on('eva:stateChanged', (data: { isOutdoors: boolean }) => {
       if (data.isOutdoors) {
-        this.setEVAMode(true, new THREE.Vector3(12.6, 0, 5.5));
+        this.setEVAMode(true, new THREE.Vector3(19.2, 0, 7.5));
       } else {
-        this.setEVAMode(false, new THREE.Vector3(5.5, 0, 3.8));
+        this.setEVAMode(false, new THREE.Vector3(12.5, 0, 7.0));
       }
     });
 

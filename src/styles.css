@@ -328,6 +328,46 @@ html, body {
   box-shadow: 0 0 16px var(--tech-cyan-glow);
 }
 
+/* Fullscreen Toggle Buttons (HUD, Main Menu, Pause) */
+.btn-fullscreen {
+  width: 38px;
+  height: 36px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(0, 229, 255, 0.45);
+  border-radius: var(--radius-sm);
+  color: var(--tech-cyan);
+  font-size: 1.15rem;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-fullscreen:hover {
+  background: rgba(0, 229, 255, 0.2);
+  border-color: var(--tech-cyan);
+  box-shadow: 0 0 12px var(--tech-cyan-glow);
+}
+
+.btn-fullscreen.is-fullscreen {
+  background: rgba(0, 229, 255, 0.25);
+  border-color: #00e5ff;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.5);
+}
+
+.btn-fs-menu {
+  border-color: rgba(0, 229, 255, 0.5) !important;
+  color: var(--tech-cyan) !important;
+}
+
+.btn-fs-menu:hover {
+  background: rgba(0, 229, 255, 0.15) !important;
+  box-shadow: 0 0 14px var(--tech-cyan-glow) !important;
+}
+
 /* Emergency Banner */
 .emergency-banner {
   position: absolute;
@@ -1443,7 +1483,8 @@ body.is-mobile .mobile-brief-hint {
 
 @media (max-width: 600px) {
   .hud-top-bar {
-    padding: 4px 8px;
+    padding: max(4px, env(safe-area-inset-top, 4px)) max(8px, env(safe-area-inset-right, 8px)) 4px max(8px, env(safe-area-inset-left, 8px));
+    gap: 6px;
   }
 
   .brand-logo-icon {
@@ -1453,26 +1494,48 @@ body.is-mobile .mobile-brief-hint {
   }
 
   .brand-org {
-    font-size: 0.75rem;
-    letter-spacing: 1px;
+    font-size: 0.74rem;
+    letter-spacing: 0.8px;
+  }
+
+  .brand-division {
+    display: none; /* Hide secondary subtitle to prevent top bar crowding */
+  }
+
+  .metric-mission-name {
+    display: none; /* Hide static mission name so timer and status have optimal room */
   }
 
   .hud-mission-status {
-    padding: 4px 10px;
-    gap: 10px;
+    padding: 3px 10px;
+    gap: 8px;
+    border-radius: 20px;
   }
 
   .metric-label {
-    font-size: 0.55rem;
+    font-size: 0.52rem;
   }
 
   .metric-value {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
+  }
+
+  .hud-actions {
+    gap: 5px;
   }
 
   .btn-action {
     padding: 6px 8px;
     font-size: 0.7rem;
+    min-height: 36px;
+  }
+
+  .btn-fullscreen {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    font-size: 1.1rem;
   }
 
   .btn-obj-label {
@@ -1481,6 +1544,21 @@ body.is-mobile .mobile-brief-hint {
 
   .btn-xr {
     display: none; /* Hide desktop WebXR prompt on phones without VR headset */
+  }
+
+  .objective-guide-banner {
+    top: 54px;
+    max-width: calc(100vw - 20px);
+    padding: 4px 10px;
+    gap: 8px;
+  }
+
+  .guide-instruction {
+    font-size: 0.76rem;
+  }
+
+  .guide-hint {
+    font-size: 0.64rem;
   }
 
   .console-grid {
@@ -1531,6 +1609,20 @@ body.is-mobile .mobile-brief-hint {
 @media (max-height: 520px) {
   .hud-top-bar {
     padding: 2px 10px;
+  }
+
+  .objective-guide-banner {
+    top: 40px;
+    padding: 3px 10px;
+    max-width: calc(100vw - 20px);
+  }
+
+  .guide-instruction {
+    font-size: 0.74rem;
+  }
+
+  .guide-hint {
+    display: none; /* Hide secondary hint in compact landscape so reticle remains unobstructed */
   }
 
   .hud-objectives-sidebar {

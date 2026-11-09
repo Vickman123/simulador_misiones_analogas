@@ -34,16 +34,16 @@ export const CONFIG = {
   },
 
   HABITAT: {
-    RADIUS: 11.5,
-    HEIGHT: 3.8,
-    WALKABLE_RADIUS: 10.4,
-    WINDOW_WIDTH: 8.5,
-    WINDOW_HEIGHT: 3.0,
-    CAMERA_HEIGHT: 1.68 // Standard astronaut eye height in meters
+    RADIUS: 17.5,
+    HEIGHT: 4.6,
+    WALKABLE_RADIUS: 16.2,
+    WINDOW_WIDTH: 13.0,
+    WINDOW_HEIGHT: 3.6,
+    CAMERA_HEIGHT: 1.70 // Standard astronaut eye height in meters
   },
 
   EVA: {
-    OUTDOORS_MAX_RADIUS: 85.0,
+    OUTDOORS_MAX_RADIUS: 110.0,
     MARS_GRAVITY: -3.71, // 0.38g vs -9.81 on Earth
     JUMP_VELOCITY: 4.8,
     SUIT_O2_DURATION_SECONDS: 600

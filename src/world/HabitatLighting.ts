@@ -46,18 +46,20 @@ export class HabitatLighting {
 
     // 4. Distributed Ceiling Downlights (Pure 5000K crisp white space laboratory LEDs)
     const interiorPositions = [
-      new THREE.Vector3(0, CONFIG.HABITAT.HEIGHT - 0.35, 0),       // Central hub center
-      new THREE.Vector3(0, CONFIG.HABITAT.HEIGHT - 0.35, -4.5),    // Central hub north (Mission control)
-      new THREE.Vector3(0, CONFIG.HABITAT.HEIGHT - 0.35, 3.8),     // Central hub south
-      new THREE.Vector3(-6.5, CONFIG.HABITAT.HEIGHT - 0.35, 4.5),  // Mess Hall & Galley
-      new THREE.Vector3(-6.5, CONFIG.HABITAT.HEIGHT - 0.35, -5.0), // Crew Quarters
-      new THREE.Vector3(6.5, CONFIG.HABITAT.HEIGHT - 0.35, -5.0),  // Science & Geology Lab
-      new THREE.Vector3(6.5, CONFIG.HABITAT.HEIGHT - 0.35, 4.0),   // EVA Suit Bay & Airlock
-      new THREE.Vector3(9.5, CONFIG.HABITAT.HEIGHT - 0.35, 5.2)    // Airlock Exit Vestibule
+      new THREE.Vector3(0, CONFIG.HABITAT.HEIGHT - 0.35, 0),        // Central hub center
+      new THREE.Vector3(0, CONFIG.HABITAT.HEIGHT - 0.35, -7.5),     // Central hub north (Mission control)
+      new THREE.Vector3(0, CONFIG.HABITAT.HEIGHT - 0.35, 5.5),      // Central hub south
+      new THREE.Vector3(-10.5, CONFIG.HABITAT.HEIGHT - 0.35, 7.0),  // Mess Hall & Galley
+      new THREE.Vector3(-10.5, CONFIG.HABITAT.HEIGHT - 0.35, -7.5), // Crew Quarters
+      new THREE.Vector3(10.5, CONFIG.HABITAT.HEIGHT - 0.35, -5.0),  // Science Bio Lab
+      new THREE.Vector3(11.5, CONFIG.HABITAT.HEIGHT - 0.35, -10.5), // Geology Lab Alcove
+      new THREE.Vector3(9.5, CONFIG.HABITAT.HEIGHT - 0.35, 5.0),    // EVA Suit Bay
+      new THREE.Vector3(13.5, CONFIG.HABITAT.HEIGHT - 0.35, 7.5),   // Airlock Chamber
+      new THREE.Vector3(18.2, CONFIG.HABITAT.HEIGHT - 0.35, 7.5)    // Airlock Exterior Vestibule
     ];
 
     interiorPositions.forEach((pos, idx) => {
-      const pl = new THREE.PointLight(0xf8faff, 1.85, 14, 1.4);
+      const pl = new THREE.PointLight(0xf8faff, 2.1, 18, 1.3);
       pl.position.copy(pos);
       pl.name = `InteriorDownlight_${idx}`;
       this.group.add(pl);
@@ -68,73 +70,73 @@ export class HabitatLighting {
     const stationLightConfigs = [
       {
         name: 'Task_LifeSupport',
-        pos: new THREE.Vector3(-1.8, 2.5, 3.8),
+        pos: new THREE.Vector3(-2.8, 2.6, 6.0),
         color: 0x00e5ff, // Tech cyan
-        intensity: 1.8,
-        distance: 6.5
-      },
-      {
-        name: 'Task_ScienceStation',
-        pos: new THREE.Vector3(6.0, 2.5, -3.2),
-        color: 0x00e676, // Botanical green
-        intensity: 1.8,
-        distance: 6.5
-      },
-      {
-        name: 'Task_ResourceCabinet',
-        pos: new THREE.Vector3(1.8, 2.5, 3.8),
-        color: 0xffb74d, // High-visibility amber
-        intensity: 1.8,
-        distance: 6.5
-      },
-      {
-        name: 'Task_MissionControl',
-        pos: new THREE.Vector3(0, 2.5, -4.8),
-        color: 0x38bdf8, // Telemetry cyan-white
-        intensity: 1.9,
-        distance: 7.0
-      },
-      {
-        name: 'Task_Airlock',
-        pos: new THREE.Vector3(8.5, 2.5, 5.0),
-        color: 0xffffff,
-        intensity: 1.8,
-        distance: 6.5
-      },
-      {
-        name: 'Task_MessHall',
-        pos: new THREE.Vector3(-6.8, 2.5, 4.5),
-        color: 0xfffbeb,
-        intensity: 1.8,
-        distance: 8.0
-      },
-      {
-        name: 'Task_CrewQuarters',
-        pos: new THREE.Vector3(-6.8, 2.5, -5.5),
-        color: 0xe0f2fe,
-        intensity: 1.6,
-        distance: 8.0
-      },
-      {
-        name: 'Task_GeologyLab',
-        pos: new THREE.Vector3(7.5, 2.5, -6.0),
-        color: 0xa7f3d0,
-        intensity: 1.8,
-        distance: 8.0
-      },
-      {
-        name: 'Task_SuitBay',
-        pos: new THREE.Vector3(6.5, 2.5, 3.5),
-        color: 0xffd600,
-        intensity: 1.8,
+        intensity: 2.0,
         distance: 7.5
       },
       {
-        name: 'Task_ExteriorAirlock',
-        pos: new THREE.Vector3(11.8, 2.5, 5.5),
-        color: 0xffffff,
+        name: 'Task_ScienceStation',
+        pos: new THREE.Vector3(9.5, 2.6, -4.8),
+        color: 0x00e676, // Botanical green
+        intensity: 2.0,
+        distance: 7.5
+      },
+      {
+        name: 'Task_ResourceCabinet',
+        pos: new THREE.Vector3(2.8, 2.6, 6.0),
+        color: 0xffb74d, // High-visibility amber
+        intensity: 2.0,
+        distance: 7.5
+      },
+      {
+        name: 'Task_MissionControl',
+        pos: new THREE.Vector3(0, 2.6, -9.5),
+        color: 0x38bdf8, // Telemetry cyan-white
         intensity: 2.2,
-        distance: 12.0
+        distance: 8.5
+      },
+      {
+        name: 'Task_Airlock',
+        pos: new THREE.Vector3(13.5, 2.6, 7.5),
+        color: 0xffffff,
+        intensity: 2.0,
+        distance: 7.5
+      },
+      {
+        name: 'Task_MessHall',
+        pos: new THREE.Vector3(-10.5, 2.6, 7.0),
+        color: 0xfffbeb,
+        intensity: 2.0,
+        distance: 9.0
+      },
+      {
+        name: 'Task_CrewQuarters',
+        pos: new THREE.Vector3(-10.5, 2.6, -8.0),
+        color: 0xe0f2fe,
+        intensity: 1.8,
+        distance: 9.0
+      },
+      {
+        name: 'Task_GeologyLab',
+        pos: new THREE.Vector3(11.5, 2.6, -10.5),
+        color: 0xa7f3d0,
+        intensity: 2.0,
+        distance: 9.0
+      },
+      {
+        name: 'Task_SuitBay',
+        pos: new THREE.Vector3(9.5, 2.6, 5.0),
+        color: 0xffd600,
+        intensity: 2.0,
+        distance: 8.0
+      },
+      {
+        name: 'Task_ExteriorAirlock',
+        pos: new THREE.Vector3(18.2, 2.6, 7.5),
+        color: 0xffffff,
+        intensity: 2.4,
+        distance: 14.0
       }
     ];
 
@@ -148,10 +150,10 @@ export class HabitatLighting {
 
     // 6. Emergency Red Strobes (Positioned along perimeter ribs)
     const emergencyPositions = [
-      new THREE.Vector3(-4.5, CONFIG.HABITAT.HEIGHT - 0.5, 0),
-      new THREE.Vector3(4.5, CONFIG.HABITAT.HEIGHT - 0.5, 0),
-      new THREE.Vector3(0, CONFIG.HABITAT.HEIGHT - 0.5, -4.5),
-      new THREE.Vector3(0, CONFIG.HABITAT.HEIGHT - 0.5, 4.5)
+      new THREE.Vector3(-8.0, CONFIG.HABITAT.HEIGHT - 0.5, 0),
+      new THREE.Vector3(8.0, CONFIG.HABITAT.HEIGHT - 0.5, 0),
+      new THREE.Vector3(0, CONFIG.HABITAT.HEIGHT - 0.5, -8.0),
+      new THREE.Vector3(0, CONFIG.HABITAT.HEIGHT - 0.5, 8.0)
     ];
 
     emergencyPositions.forEach((pos, idx) => {

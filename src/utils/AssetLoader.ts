@@ -115,10 +115,10 @@ export class AssetLoader {
 
   /**
    * Generates a seamless high-gloss white cleanroom epoxy floor texture
-   * NASA / ESA / SpaceX cleanroom aesthetic with anti-static seams and subtle guide markings
+   * High-contrast design: pristine white composite tiles framed by crisp matte-black rubber gaskets and registration marks
    */
   public createFloorTexture(): THREE.CanvasTexture {
-    const key = 'habitat_white_cleanroom_floor_texture';
+    const key = 'habitat_white_cleanroom_floor_black_margins';
     if (this.textureCache.has(key)) {
       return this.textureCache.get(key) as THREE.CanvasTexture;
     }
@@ -128,21 +128,21 @@ export class AssetLoader {
     canvas.height = 512;
     const ctx = canvas.getContext('2d')!;
 
-    // 1. Pristine white epoxy cleanroom base
+    // 1. Pristine white cleanroom composite tile base
     ctx.fillStyle = '#f8fafc';
     ctx.fillRect(0, 0, 512, 512);
 
-    // 2. Subtle anti-static micro-tiles
+    // 2. Subtle specular inner bevel on tiles
     ctx.fillStyle = '#ffffff';
-    for (let x = 8; x < 512; x += 64) {
-      for (let y = 8; y < 512; y += 64) {
-        ctx.fillRect(x + 2, y + 2, 60, 60);
+    for (let x = 0; x < 512; x += 64) {
+      for (let y = 0; y < 512; y += 64) {
+        ctx.fillRect(x + 4, y + 4, 56, 56);
       }
     }
 
-    // 3. Crisp architectural seam grid
-    ctx.strokeStyle = '#e2e8f0';
-    ctx.lineWidth = 1.5;
+    // 3. Crisp Matte-Black Rubber Gasket Seams (Pequeños márgenes negros)
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 3.5;
     for (let x = 0; x <= 512; x += 64) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
@@ -156,35 +156,35 @@ export class AssetLoader {
       ctx.stroke();
     }
 
-    // 4. Subtle ESD corner registration marks
-    ctx.strokeStyle = '#cbd5e1';
-    ctx.lineWidth = 1;
+    // 4. Solid Black Corner Registration Marks (+)
+    ctx.strokeStyle = '#020617';
+    ctx.lineWidth = 2.5;
     for (let x = 0; x <= 512; x += 64) {
       for (let y = 0; y <= 512; y += 64) {
         ctx.beginPath();
-        ctx.moveTo(x - 4, y);
-        ctx.lineTo(x + 4, y);
-        ctx.moveTo(x, y - 4);
-        ctx.lineTo(x, y + 4);
+        ctx.moveTo(x - 6, y);
+        ctx.lineTo(x + 6, y);
+        ctx.moveTo(x, y - 6);
+        ctx.lineTo(x, y + 6);
         ctx.stroke();
       }
     }
 
-    // 5. Cleanroom perimeter border
-    ctx.strokeStyle = '#94a3b8';
-    ctx.lineWidth = 3;
+    // 5. High-contrast Black Perimeter Margin
+    ctx.strokeStyle = '#020617';
+    ctx.lineWidth = 5;
     ctx.strokeRect(0, 0, 512, 512);
 
-    // 6. Subtle technical cyan guideline stripe
-    ctx.fillStyle = 'rgba(14, 165, 233, 0.12)';
-    ctx.fillRect(0, 252, 512, 8);
-    ctx.fillStyle = 'rgba(14, 165, 233, 0.4)';
-    ctx.fillRect(0, 255, 512, 2);
+    // 6. Navigation Corridor Guideline (Black border with Tech-Cyan center core)
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(0, 250, 512, 12);
+    ctx.fillStyle = '#00e5ff';
+    ctx.fillRect(0, 254, 512, 4);
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(6, 6);
+    texture.repeat.set(10, 10);
     this.textureCache.set(key, texture);
     return texture;
   }
