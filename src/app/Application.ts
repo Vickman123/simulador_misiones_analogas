@@ -18,6 +18,7 @@ import { MissionHUD } from '../ui/MissionHUD';
 import { InteractionPanel } from '../ui/InteractionPanel';
 import { MissionReport } from '../ui/MissionReport';
 import { EventBus } from '../utils/EventBus';
+import { bindFastClick } from '../utils/DOMUtils';
 
 export class Application {
   private container: HTMLElement;
@@ -125,7 +126,7 @@ export class Application {
       }
     };
 
-    document.getElementById('btn-enter-xr')?.addEventListener('click', enterVRHandler);
+    bindFastClick(document.getElementById('btn-enter-xr'), enterVRHandler);
     EventBus.getInstance().on('xr:requestEnter', enterVRHandler);
 
     EventBus.getInstance().on('xr:sessionEnd', () => {
@@ -136,7 +137,7 @@ export class Application {
     });
 
     // Pause menu triggers
-    document.getElementById('btn-pause-menu')?.addEventListener('click', () => {
+    bindFastClick(document.getElementById('btn-pause-menu'), () => {
       this.togglePause();
     });
 
@@ -144,17 +145,17 @@ export class Application {
       this.togglePause();
     });
 
-    document.getElementById('btn-resume-mission')?.addEventListener('click', () => {
+    bindFastClick(document.getElementById('btn-resume-mission'), () => {
       this.audioManager.playClick();
       this.resume();
     });
 
-    document.getElementById('btn-restart-mission')?.addEventListener('click', () => {
+    bindFastClick(document.getElementById('btn-restart-mission'), () => {
       this.audioManager.playClick();
       this.restart();
     });
 
-    this.btnSoundToggle?.addEventListener('click', () => {
+    bindFastClick(this.btnSoundToggle, () => {
       const current = this.audioManager.getEnabled();
       this.audioManager.setEnabled(!current);
       if (this.btnSoundToggle) {

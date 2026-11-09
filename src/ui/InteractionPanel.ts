@@ -4,6 +4,7 @@ import { ScienceExperimentSystem } from '../systems/ScienceExperimentSystem';
 import { ResourceSystem } from '../systems/ResourceSystem';
 import { EmergencySystem } from '../systems/EmergencySystem';
 import { AudioManager } from '../core/AudioManager';
+import { bindFastClick } from '../utils/DOMUtils';
 
 export class InteractionPanel {
   private modalLifeSupport: HTMLElement | null;
@@ -38,9 +39,9 @@ export class InteractionPanel {
     });
 
     // Close buttons
-    document.getElementById('btn-close-lifesupport')?.addEventListener('click', () => this.closeAll());
-    document.getElementById('btn-close-science')?.addEventListener('click', () => this.closeAll());
-    document.getElementById('btn-close-resources')?.addEventListener('click', () => this.closeAll());
+    bindFastClick(document.getElementById('btn-close-lifesupport'), () => this.closeAll());
+    bindFastClick(document.getElementById('btn-close-science'), () => this.closeAll());
+    bindFastClick(document.getElementById('btn-close-resources'), () => this.closeAll());
 
     // Notification toast
     EventBus.getInstance().on('ui:notify', (msg: string) => {

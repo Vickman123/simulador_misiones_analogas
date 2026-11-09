@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="marsGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff7043" />
+      <stop offset="100%" stop-color="#c43e00" />
+    </linearGradient>
+    <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00e5ff" />
+      <stop offset="100%" stop-color="#00838f" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#0a0c10" />
+  <circle cx="32" cy="32" r="22" stroke="#2d3343" stroke-width="2" fill="none" />
+  <circle cx="32" cy="32" r="16" fill="url(#marsGrad)" />
+  <polygon points="32,14 42,44 32,38 22,44" fill="#ffffff" opacity="0.9" />
+  <circle cx="32" cy="32" r="4" fill="url(#cyanGrad)" />
+</svg>

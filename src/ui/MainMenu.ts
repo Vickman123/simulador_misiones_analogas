@@ -1,6 +1,7 @@
 import { EventBus } from '../utils/EventBus';
 import { AudioManager } from '../core/AudioManager';
 import { PlatformManager } from '../app/PlatformManager';
+import { bindFastClick } from '../utils/DOMUtils';
 
 export class MainMenu {
   private containerEl: HTMLElement | null;
@@ -38,13 +39,13 @@ export class MainMenu {
   }
 
   private bindEvents(): void {
-    this.btnDesktop?.addEventListener('click', () => {
+    bindFastClick(this.btnDesktop, () => {
       AudioManager.getInstance().playClick();
       this.hide();
       EventBus.getInstance().emit('ui:openBriefing');
     });
 
-    this.btnVR?.addEventListener('click', () => {
+    bindFastClick(this.btnVR, () => {
       AudioManager.getInstance().playClick();
       EventBus.getInstance().emit('xr:requestEnter');
     });

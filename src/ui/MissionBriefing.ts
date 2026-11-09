@@ -1,6 +1,7 @@
 import { EventBus } from '../utils/EventBus';
 import { MissionManager } from '../mission/MissionManager';
 import { AudioManager } from '../core/AudioManager';
+import { bindFastClick } from '../utils/DOMUtils';
 
 export class MissionBriefing {
   private modalEl: HTMLElement | null;
@@ -16,14 +17,14 @@ export class MissionBriefing {
   }
 
   private bindEvents(): void {
-    this.btnAccept?.addEventListener('click', () => {
+    bindFastClick(this.btnAccept, () => {
       AudioManager.getInstance().playClick();
       this.hide();
       MissionManager.getInstance().startMission();
       AudioManager.getInstance().startAmbientHum();
     });
 
-    this.btnClose?.addEventListener('click', () => {
+    bindFastClick(this.btnClose, () => {
       AudioManager.getInstance().playClick();
       this.hide();
     });
