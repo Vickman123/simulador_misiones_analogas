@@ -185,7 +185,45 @@ export class MissionHUD {
       return;
     }
 
-    if (currentObj.id === 'obj_inspection') {
+    // Tutorial Mode Guidance
+    if (currentObj.id === 'tut_movement') {
+      this.guideInstructionEl.textContent = '🎓 TUTORIAL: Desplázate unos pasos por el hábitat';
+      this.guideHintEl.textContent = 'Usa el joystick virtual izquierdo (o teclas WASD) y desliza para girar la vista.';
+    } else if (currentObj.id === 'tut_mission_control') {
+      this.guideInstructionEl.textContent = '🎓 TUTORIAL: Acércate al Centro de Control frontal';
+      this.guideHintEl.textContent = 'Apunta a la mesa [CENTRO DE CONTROL] e interactúa para consultar telemetría general.';
+    } else if (currentObj.id === 'tut_lifesupport') {
+      this.guideInstructionEl.textContent = '🎓 TUTORIAL: Ve a la Consola de Soporte Vital a la izquierda';
+      this.guideHintEl.textContent = 'Abre [1. SOPORTE VITAL] e inicia el escaneo diagnóstico de O₂ y CO₂.';
+    } else if (currentObj.id === 'tut_science') {
+      this.guideInstructionEl.textContent = '🎓 TUTORIAL: Visita la Estación de Ciencias a la derecha';
+      this.guideHintEl.textContent = 'Examina la cámara de cultivo [2. CIENCIA BIOLÓGICA] para aprender sobre botánica espacial.';
+    } else if (currentObj.id === 'tut_resources') {
+      this.guideInstructionEl.textContent = '🎓 TUTORIAL: Examina el Gabinete de Repuestos al fondo';
+      this.guideHintEl.textContent = 'Acércate a [3. ALMACÉN Y REPUESTOS] para completar tu entrenamiento en la academia.';
+    }
+    // Certification Mode Guidance
+    else if (currentObj.id === 'cert_diagnostics') {
+      this.guideInstructionEl.textContent = '🎖️ EVALUACIÓN: Auditoría de Soporte Vital ECLSS';
+      this.guideHintEl.textContent = 'Ve a [1. SOPORTE VITAL] a tu izquierda y ejecuta el escaneo de certificación.';
+    } else if (currentObj.id === 'cert_biogrowth') {
+      this.guideInstructionEl.textContent = '🎖️ EVALUACIÓN: Calibración Fotónica BIOGROWTH-01';
+      this.guideHintEl.textContent = 'Ve a [2. CIENCIA BIOLÓGICA] a tu derecha y configura el espectro fotosintético.';
+    } else if (currentObj.id === 'cert_emergency') {
+      const hasFilter = ResourceSystem.getInstance().hasItem('filter_hepa_c1');
+      if (!hasFilter) {
+        this.guideInstructionEl.textContent = '⚠️ EVALUACIÓN: ¡Alarma de Filtro! Ve al Almacén';
+        this.guideHintEl.textContent = 'Dirígete a [3. ALMACÉN Y REPUESTOS] y extrae el filtro HEPA-C1 inmediatamente.';
+      } else {
+        this.guideInstructionEl.textContent = '🛠️ EVALUACIÓN: Reemplazo Estricto de Filtro';
+        this.guideHintEl.textContent = 'Regresa a [1. SOPORTE VITAL] y ejecuta el checklist de 5 pasos sin errores.';
+      }
+    } else if (currentObj.id === 'cert_airlock') {
+      this.guideInstructionEl.textContent = '🎖️ EVALUACIÓN: Certifica la Esclusa de Salida Exterior';
+      this.guideHintEl.textContent = 'Camina a la compuerta [ESCLUSA DE SALIDA EVA] al fondo derecha y confirma sellado.';
+    }
+    // Standard Mode Guidance
+    else if (currentObj.id === 'obj_inspection') {
       this.guideInstructionEl.textContent = 'PASO 1: Dirígete a la Consola de Soporte Vital';
       this.guideHintEl.textContent = 'Sigue el marcador azul [1. SOPORTE VITAL] a tu izquierda e inicia el diagnóstico.';
     } else if (currentObj.id === 'obj_science') {

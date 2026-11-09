@@ -17,6 +17,7 @@ import { MissionBriefing } from '../ui/MissionBriefing';
 import { MissionHUD } from '../ui/MissionHUD';
 import { InteractionPanel } from '../ui/InteractionPanel';
 import { MissionReport } from '../ui/MissionReport';
+import { CertificateModal } from '../ui/CertificateModal';
 import { MissionAchievements } from '../mission/MissionAchievements';
 import { EventBus } from '../utils/EventBus';
 import { bindFastClick } from '../utils/DOMUtils';
@@ -103,6 +104,7 @@ export class Application {
     this.hud = new MissionHUD();
     this.interactionPanel = new InteractionPanel();
     this.missionReport = new MissionReport();
+    new CertificateModal();
 
     this.modalPause = document.getElementById('modal-pause');
     this.btnSoundToggle = document.getElementById('btn-toggle-sound');

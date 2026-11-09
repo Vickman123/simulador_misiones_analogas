@@ -4,10 +4,12 @@ import { LifeSupportSystem } from '../../systems/LifeSupportSystem';
 import { ScienceExperimentSystem } from '../../systems/ScienceExperimentSystem';
 import { EmergencySystem } from '../../systems/EmergencySystem';
 import { AudioManager } from '../../core/AudioManager';
+import { IMission, MissionType } from '../MissionTypes';
 
-export class HabitatRecoveryMission {
+export class HabitatRecoveryMission implements IMission {
   public readonly id = 'M-001';
   public readonly name = 'HABITAT RECOVERY';
+  public readonly type: MissionType = 'standard';
   public objectives: MissionObjective[] = [];
 
   private isEmergencyTriggered: boolean = false;

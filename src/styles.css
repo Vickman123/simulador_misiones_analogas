@@ -1826,3 +1826,363 @@ body.is-mobile .mobile-brief-hint {
     width: 100%;
   }
 }
+
+/* ==========================================================================
+   Mission Mode Selector (Tutorial, Standard, Certification)
+   ========================================================================== */
+.mission-mode-selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 18px 0;
+  width: 100%;
+}
+
+.mode-card {
+  position: relative;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 14px 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.mode-card:hover {
+  border-color: rgba(0, 229, 255, 0.5);
+  background: rgba(15, 23, 42, 0.9);
+  transform: translateY(-2px);
+}
+
+.mode-card.active {
+  border-color: var(--tech-cyan);
+  background: rgba(0, 229, 255, 0.12);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.3), inset 0 0 15px rgba(0, 229, 255, 0.1);
+  transform: translateY(-3px);
+}
+
+.mode-card.mode-cert.active {
+  border-color: #ffd700;
+  background: rgba(255, 215, 0, 0.12);
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.35), inset 0 0 15px rgba(255, 215, 0, 0.1);
+}
+
+.mode-icon {
+  font-size: 2rem;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+}
+
+.mode-badge {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--tech-cyan);
+  background: rgba(0, 229, 255, 0.15);
+  padding: 2px 8px;
+  border-radius: 10px;
+  display: inline-block;
+  margin-bottom: 4px;
+}
+
+.gold-badge {
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.2);
+}
+
+.mode-title {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+
+.mode-desc {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  line-height: 1.25;
+}
+
+/* ==========================================================================
+   Official Astronaut Certificate Modal & Print Styling
+   ========================================================================== */
+.certificate-card {
+  position: relative;
+  background: linear-gradient(145deg, #090e17 0%, #111a2e 100%);
+  border: 2px solid #ffd700;
+  border-radius: 16px;
+  padding: 24px 32px;
+  max-width: 780px;
+  width: 92vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.9), 0 0 35px rgba(255, 215, 0, 0.25);
+  text-align: center;
+}
+
+.cert-emblem-badge {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: #ffd700;
+  margin-bottom: 6px;
+}
+
+.cert-title {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.06em;
+  margin: 4px 0;
+  text-transform: uppercase;
+}
+
+.cert-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.cert-divider-line {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ffd700, transparent);
+  margin: 12px auto;
+  width: 80%;
+}
+
+.cert-intro {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  margin-top: 14px;
+}
+
+.cert-name-box {
+  margin: 10px auto 14px auto;
+  max-width: 440px;
+}
+
+.cert-astronaut-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1.5px dashed #ffd700;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #ffd700;
+  text-align: center;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.cert-astronaut-input:focus {
+  background: rgba(255, 215, 0, 0.12);
+  border-style: solid;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+}
+
+.cert-name-hint {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.cert-declaration {
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  line-height: 1.45;
+  max-width: 660px;
+  margin: 0 auto 16px auto;
+}
+
+.cert-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 16px 0;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.cert-metric-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.cert-metric-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.cert-metric-val {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-top: 2px;
+}
+
+.gold-highlight {
+  color: #ffd700;
+}
+
+.cert-code {
+  font-family: var(--font-mono);
+  color: var(--tech-cyan);
+}
+
+.cert-signatures-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  margin: 20px 0 16px 0;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cert-sign-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cert-signature-name {
+  font-family: 'Brush Script MT', cursive, sans-serif;
+  font-size: 1.4rem;
+  color: #94a3b8;
+  border-bottom: 1px solid #64748b;
+  padding: 0 16px 2px 16px;
+  margin-bottom: 4px;
+}
+
+.cert-sign-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.cert-sign-sub {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+}
+
+.cert-hologram-seal {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 2px dashed #ffd700;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.25) 0%, rgba(0, 0, 0, 0.6) 80%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+.seal-ring {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.55rem;
+  font-family: var(--font-mono);
+  color: #ffd700;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+.seal-star {
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+}
+
+.cert-actions-bar {
+  display: flex;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #modal-certificate,
+  #modal-certificate .certificate-card,
+  #modal-certificate .certificate-card * {
+    visibility: visible;
+  }
+  #modal-certificate {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: #ffffff !important;
+  }
+  .certificate-card {
+    background: #ffffff !important;
+    border: 3px solid #b8860b !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 30px !important;
+  }
+  .cert-title, .cert-metric-val, .cert-sign-label {
+    color: #000000 !important;
+  }
+  .cert-astronaut-input {
+    border: none !important;
+    color: #000000 !important;
+    background: transparent !important;
+    font-size: 2rem !important;
+  }
+  .no-print, .cert-name-hint {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .mission-mode-selector {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .mode-card {
+    flex-direction: row;
+    text-align: left;
+    padding: 10px;
+    gap: 12px;
+  }
+  .mode-icon {
+    font-size: 1.6rem;
+    margin-bottom: 0;
+  }
+  .certificate-card {
+    padding: 16px;
+  }
+  .cert-title {
+    font-size: 1.3rem;
+  }
+  .cert-metrics-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .cert-signatures-row {
+    flex-direction: column;
+    gap: 14px;
+  }
+}

@@ -1,5 +1,8 @@
 import { MissionState } from './MissionState';
 import { HabitatRecoveryMission } from './missions/HabitatRecovery';
+import { TutorialMission } from './missions/TutorialMission';
+import { CertificationMission } from './missions/CertificationMission';
+import { IMission, MissionType } from './MissionTypes';
 import { MissionScoring, ScoreReport } from './MissionScoring';
 import { ProgressStorage } from '../storage/ProgressStorage';
 import { EventBus } from '../utils/EventBus';
@@ -18,7 +21,8 @@ export class MissionManager {
 
   private state: MissionState = MissionState.INITIALIZING;
   private previousState: MissionState = MissionState.INITIALIZING;
-  private activeMission: HabitatRecoveryMission;
+  private missionType: MissionType = 'standard';
+  private activeMission: IMission;
 
   private elapsedSeconds: number = 0;
   private isTimerRunning: boolean = false;
@@ -39,13 +43,13 @@ export class MissionManager {
   private bindEvents(): void {
     // Connect LifeSupport diagnostic completion
     EventBus.getInstance().on('lifesupport:diagnosticComplete', () => {
-      this.activeMission.handleLifeSupportDiagnostic();
+      this.activeMission.handleLifeSupportDiagnostic?.();
       this.checkMissionAdvancement();
     });
 
     // Connect Science experiment completion
     EventBus.getInstance().on('science:completed', () => {
-      this.activeMission.handleScienceCompleted();
+      this.activeMission.handleScienceCompleted?.();
       this.checkMissionAdvancement();
     });
 
@@ -56,9 +60,31 @@ export class MissionManager {
 
     EventBus.getInstance().on('emergency:resolved', () => {
       this.setState(MissionState.RECOVERY);
-      this.activeMission.handleEmergencyResolved();
+      this.activeMission.handleEmergencyResolved?.();
       this.checkMissionAdvancement();
     });
+
+    // Connect interaction triggers for tutorial & certification
+    EventBus.getInstance().on('interaction:triggered', (interactableId: string) => {
+      this.activeMission.handleInteraction?.(interactableId);
+      this.checkMissionAdvancement();
+    });
+  }
+
+  public setMissionType(type: MissionType): void {
+    this.missionType = type;
+    if (type === 'tutorial') {
+      this.activeMission = new TutorialMission();
+    } else if (type === 'certification') {
+      this.activeMission = new CertificationMission();
+    } else {
+      this.activeMission = new HabitatRecoveryMission();
+    }
+    EventBus.getInstance().emit('mission:typeChanged', type);
+  }
+
+  public getMissionType(): MissionType {
+    return this.missionType;
   }
 
   public getState(): MissionState {
@@ -76,7 +102,7 @@ export class MissionManager {
     }
   }
 
-  public getActiveMission(): HabitatRecoveryMission {
+  public getActiveMission(): IMission {
     return this.activeMission;
   }
 
@@ -159,12 +185,30 @@ export class MissionManager {
       efficiencyScore: this.latestReport.breakdown.timeScore
     });
 
-    EventBus.getInstance().emit('mission:completed', { report: this.latestReport });
+    if (this.missionType === 'certification') {
+      EventBus.getInstance().emit('certification:completed', {
+        report: this.latestReport,
+        mission: this.activeMission
+      });
+    } else if (this.missionType === 'tutorial') {
+      EventBus.getInstance().emit('tutorial:completed', {
+        report: this.latestReport,
+        mission: this.activeMission
+      });
+    } else {
+      EventBus.getInstance().emit('mission:completed', { report: this.latestReport });
+    }
   }
 
   public update(delta: number): void {
     if (this.isTimerRunning) {
       this.elapsedSeconds += delta;
+
+      // In tutorial mode, advance movement objective
+      if (this.missionType === 'tutorial') {
+        this.activeMission.handleMovement?.(delta * 0.8);
+        this.checkMissionAdvancement();
+      }
 
       EventBus.getInstance().emit('mission:timerTick', {
         elapsedSeconds: this.elapsedSeconds,

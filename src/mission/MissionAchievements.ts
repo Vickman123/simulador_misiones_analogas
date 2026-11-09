@@ -67,6 +67,27 @@ export const ACHIEVEMENTS_LIST: Achievement[] = [
     title: 'Inspección Exhaustiva',
     description: 'Interactúa con todas las terminales y verifica la esclusa exterior.',
     category: 'operational'
+  },
+  {
+    id: 'ach_academy_grad',
+    icon: '🎓',
+    title: 'Graduado de la Academia',
+    description: 'Completa con éxito el entrenamiento interactivo en Modo Tutorial.',
+    category: 'operational'
+  },
+  {
+    id: 'ach_certified_astronaut',
+    icon: '📜',
+    title: 'Certificación Oficial',
+    description: 'Supera el examen operacional y obtén tu Diploma de Astronauta Análogo.',
+    category: 'mastery'
+  },
+  {
+    id: 'ach_honors_commander',
+    icon: '⭐',
+    title: 'Comandante con Honores',
+    description: 'Obtén 95+ puntos de distinción en el examen de Certificación Oficial.',
+    category: 'mastery'
   }
 ];
 
@@ -136,6 +157,21 @@ export class MissionAchievements {
       }
       if (data.report.metrics.timeElapsedSeconds <= 240) {
         this.unlock('ach_speedrun');
+      }
+    });
+
+    // 6b. Tutorial & Certification specific completions
+    EventBus.getInstance().on('tutorial:completed', () => {
+      this.unlock('ach_academy_grad');
+    });
+
+    EventBus.getInstance().on('certification:completed', (data: { report: ScoreReport }) => {
+      this.unlock('ach_certified_astronaut');
+      if (data.report.totalScore >= 95) {
+        this.unlock('ach_honors_commander');
+      }
+      if (data.report.totalScore >= 90) {
+        this.unlock('ach_elite');
       }
     });
 
