@@ -11,8 +11,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <script type="module" crossorigin src="./assets/index-BwEdB0of.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-CpK0qRSo.css">
+  <script type="module" crossorigin src="./assets/index-BCL5RuYr.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-t5omzHS_.css">
 </head>
 <body class="mars-sim-body">
   <!-- 3D Canvas Container -->
@@ -65,6 +65,10 @@
       </div>
 
       <div class="hud-actions">
+        <!-- Fullscreen Toggle Button (Mobile & Desktop) -->
+        <button id="btn-fullscreen-toggle" class="btn-action btn-fullscreen" title="Pantalla Completa" aria-label="Pantalla Completa">
+          <span class="fs-icon">⛶</span>
+        </button>
         <!-- Mobile Objectives Toggle Button -->
         <button id="btn-toggle-objectives" class="btn-action btn-objectives" title="Ver objetivos de misión">
           <span>📋</span>
@@ -294,6 +298,10 @@
             <span class="btn-icon">🥽</span>
             <span class="btn-label">MODO WEBXR (META QUEST)</span>
           </button>
+          <button id="btn-menu-fullscreen" class="btn-secondary-large btn-fs-menu" title="Alternar Pantalla Completa">
+            <span class="btn-icon">⛶</span>
+            <span class="btn-label">PANTALLA COMPLETA</span>
+          </button>
         </div>
 
         <div class="system-disclaimer">
@@ -466,6 +474,7 @@
         <div class="pause-actions">
           <button id="btn-resume-mission" class="btn-primary-large">REANUDAR MISIÓN</button>
           <button id="btn-restart-mission" class="btn-secondary-large">REINICIAR MISIÓN</button>
+          <button id="btn-pause-fullscreen" class="btn-secondary-large">PANTALLA COMPLETA: ACTIVAR</button>
           <button id="btn-toggle-sound" class="btn-secondary-large">AUDIO: ACTIVADO</button>
         </div>
       </div>
