@@ -21,12 +21,12 @@ export class HabitatLighting {
     this.group = new THREE.Group();
     this.group.name = 'HabitatLighting';
 
-    // 1. High-clarity ambient base (warm white)
-    this.ambientLight = new THREE.AmbientLight(0xfff8ee, 0.9);
+    // 1. High-clarity ambient base (luminous white space agency cleanroom)
+    this.ambientLight = new THREE.AmbientLight(0xffffff, 1.15);
     this.group.add(this.ambientLight);
 
-    // 2. Diffuse Hemisphere Bounce Light (eliminates pitch-black corners under desks and walls)
-    this.hemisphereLight = new THREE.HemisphereLight(0xf0f6ff, 0x3d4452, 0.8);
+    // 2. Diffuse Hemisphere Bounce Light (crisp 5500K daylight-white ceiling with reflective floor bounce)
+    this.hemisphereLight = new THREE.HemisphereLight(0xf8faff, 0xe2e8f0, 0.95);
     this.group.add(this.hemisphereLight);
 
     // 3. Exterior Martian Sun shining through the panoramic window
@@ -44,18 +44,20 @@ export class HabitatLighting {
     this.sunLight.shadow.bias = -0.001;
     this.group.add(this.sunLight);
 
-    // 4. Distributed Ceiling Downlights (Warm technical 3200K LED)
+    // 4. Distributed Ceiling Downlights (Pure 5000K crisp white space laboratory LEDs)
     const interiorPositions = [
-      new THREE.Vector3(0, CONFIG.HABITAT.HEIGHT - 0.35, 0),       // Central hub
-      new THREE.Vector3(0, CONFIG.HABITAT.HEIGHT - 0.35, -3.2),    // North quadrant (near window & mission control)
-      new THREE.Vector3(0, CONFIG.HABITAT.HEIGHT - 0.35, 3.2),     // South quadrant (near airlock & storage)
-      new THREE.Vector3(-3.2, CONFIG.HABITAT.HEIGHT - 0.35, -1.2), // West quadrant (Life support approach)
-      new THREE.Vector3(3.2, CONFIG.HABITAT.HEIGHT - 0.35, -1.2),  // East quadrant (Science station approach)
-      new THREE.Vector3(-2.8, CONFIG.HABITAT.HEIGHT - 0.35, 2.8)   // Storage corridor
+      new THREE.Vector3(0, CONFIG.HABITAT.HEIGHT - 0.35, 0),       // Central hub center
+      new THREE.Vector3(0, CONFIG.HABITAT.HEIGHT - 0.35, -4.5),    // Central hub north (Mission control)
+      new THREE.Vector3(0, CONFIG.HABITAT.HEIGHT - 0.35, 3.8),     // Central hub south
+      new THREE.Vector3(-6.5, CONFIG.HABITAT.HEIGHT - 0.35, 4.5),  // Mess Hall & Galley
+      new THREE.Vector3(-6.5, CONFIG.HABITAT.HEIGHT - 0.35, -5.0), // Crew Quarters
+      new THREE.Vector3(6.5, CONFIG.HABITAT.HEIGHT - 0.35, -5.0),  // Science & Geology Lab
+      new THREE.Vector3(6.5, CONFIG.HABITAT.HEIGHT - 0.35, 4.0),   // EVA Suit Bay & Airlock
+      new THREE.Vector3(9.5, CONFIG.HABITAT.HEIGHT - 0.35, 5.2)    // Airlock Exit Vestibule
     ];
 
     interiorPositions.forEach((pos, idx) => {
-      const pl = new THREE.PointLight(CONFIG.COLORS.WARM_INTERIOR_LIGHT, 1.6, 14, 1.5);
+      const pl = new THREE.PointLight(0xf8faff, 1.85, 14, 1.4);
       pl.position.copy(pos);
       pl.name = `InteriorDownlight_${idx}`;
       this.group.add(pl);
@@ -66,72 +68,72 @@ export class HabitatLighting {
     const stationLightConfigs = [
       {
         name: 'Task_LifeSupport',
-        pos: new THREE.Vector3(-5.2, 2.5, 0),
+        pos: new THREE.Vector3(-1.8, 2.5, 3.8),
         color: 0x00e5ff, // Tech cyan
-        intensity: 1.6,
+        intensity: 1.8,
         distance: 6.5
       },
       {
         name: 'Task_ScienceStation',
-        pos: new THREE.Vector3(5.2, 2.5, 0),
+        pos: new THREE.Vector3(6.0, 2.5, -3.2),
         color: 0x00e676, // Botanical green
-        intensity: 1.6,
+        intensity: 1.8,
         distance: 6.5
       },
       {
         name: 'Task_ResourceCabinet',
-        pos: new THREE.Vector3(-3.8, 2.5, 3.8),
+        pos: new THREE.Vector3(1.8, 2.5, 3.8),
         color: 0xffb74d, // High-visibility amber
-        intensity: 1.5,
-        distance: 5.5
-      },
-      {
-        name: 'Task_MissionControl',
-        pos: new THREE.Vector3(0, 2.5, -5.2),
-        color: 0x80d8ff, // Telemetry cyan-white
-        intensity: 1.6,
+        intensity: 1.8,
         distance: 6.5
       },
       {
+        name: 'Task_MissionControl',
+        pos: new THREE.Vector3(0, 2.5, -4.8),
+        color: 0x38bdf8, // Telemetry cyan-white
+        intensity: 1.9,
+        distance: 7.0
+      },
+      {
         name: 'Task_Airlock',
-        pos: new THREE.Vector3(3.8, 2.5, 3.8),
+        pos: new THREE.Vector3(8.5, 2.5, 5.0),
         color: 0xffffff,
-        intensity: 1.2,
-        distance: 5.0
+        intensity: 1.8,
+        distance: 6.5
       },
       {
         name: 'Task_MessHall',
-        pos: new THREE.Vector3(-6.5, 2.5, 1.8),
-        color: 0xffd180,
-        intensity: 1.6,
-        distance: 7.5
+        pos: new THREE.Vector3(-6.8, 2.5, 4.5),
+        color: 0xfffbeb,
+        intensity: 1.8,
+        distance: 8.0
       },
       {
         name: 'Task_CrewQuarters',
-        pos: new THREE.Vector3(-6.5, 2.5, -4.5),
-        color: 0xbbdefb,
-        intensity: 1.4,
-        distance: 7.5
+        pos: new THREE.Vector3(-6.8, 2.5, -5.5),
+        color: 0xe0f2fe,
+        intensity: 1.6,
+        distance: 8.0
       },
       {
         name: 'Task_GeologyLab',
-        pos: new THREE.Vector3(6.5, 2.5, -3.2),
-        color: 0x69f0ae,
-        intensity: 1.6,
-        distance: 7.5
+        pos: new THREE.Vector3(7.5, 2.5, -6.0),
+        color: 0xa7f3d0,
+        intensity: 1.8,
+        distance: 8.0
       },
       {
         name: 'Task_SuitBay',
-        pos: new THREE.Vector3(6.2, 2.5, 4.2),
+        pos: new THREE.Vector3(6.5, 2.5, 3.5),
         color: 0xffd600,
-        intensity: 1.7,
+        intensity: 1.8,
         distance: 7.5
       },
       {
         name: 'Task_ExteriorAirlock',
         pos: new THREE.Vector3(11.8, 2.5, 5.5),
         color: 0xffffff,
-        intensity: 2.0,
+        intensity: 2.2,
         distance: 12.0
       }
     ];
@@ -164,18 +166,18 @@ export class HabitatLighting {
   public setEmergencyMode(active: boolean): void {
     this.isEmergencyActive = active;
     if (!active) {
-      // Restore nominal bright lighting
-      this.ambientLight.color.setHex(0xfff8ee);
-      this.ambientLight.intensity = 0.9;
-      this.hemisphereLight.intensity = 0.8;
+      // Restore nominal bright cleanroom lighting
+      this.ambientLight.color.setHex(0xffffff);
+      this.ambientLight.intensity = 1.15;
+      this.hemisphereLight.intensity = 0.95;
 
       this.interiorDownlights.forEach((pl) => {
-        pl.color.setHex(CONFIG.COLORS.WARM_INTERIOR_LIGHT);
-        pl.intensity = 1.6;
+        pl.color.setHex(0xf8faff);
+        pl.intensity = 1.85;
       });
 
       this.workstationLights.forEach((tl) => {
-        tl.intensity = 1.6;
+        tl.intensity = 1.8;
       });
 
       this.emergencyLights.forEach((el) => {

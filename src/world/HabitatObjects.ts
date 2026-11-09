@@ -24,12 +24,14 @@ export class HabitatObjects {
   // Filter cartridge in cabinet
   public filterCartridgeMesh!: THREE.Mesh;
   private animTime: number = 0;
+  private hologramMesh?: THREE.Mesh;
 
   constructor() {
     this.group = new THREE.Group();
     this.group.name = 'HabitatObjects';
 
     this.buildMissionControl();
+    this.buildCentralHologram();
     this.buildLifeSupportConsole();
     this.buildScienceStation();
     this.buildResourceCabinet();
@@ -124,14 +126,14 @@ export class HabitatObjects {
   private buildMissionControl(): void {
     this.missionControlPanel = new THREE.Group();
     this.missionControlPanel.name = 'missionControlPanel';
-    this.missionControlPanel.position.set(0, 0, -5.8);
+    this.missionControlPanel.position.set(0, 0, -4.8);
 
-    // Desk console
+    // Pristine white aerospace desk console
     const deskGeo = new THREE.BoxGeometry(3.6, 0.9, 1.2);
     const deskMat = new THREE.MeshStandardMaterial({
-      color: CONFIG.COLORS.SURFACE_DARK,
-      roughness: 0.4,
-      metalness: 0.7
+      color: 0xf8fafc,
+      roughness: 0.22,
+      metalness: 0.12
     });
     const desk = new THREE.Mesh(deskGeo, deskMat);
     desk.position.y = 0.45;
@@ -139,14 +141,25 @@ export class HabitatObjects {
     desk.receiveShadow = true;
     this.missionControlPanel.add(desk);
 
-    // Main multi-monitor rack
-    const screenGeo = new THREE.BoxGeometry(2.4, 0.8, 0.08);
+    // Brushed metal support base
+    const baseGeo = new THREE.BoxGeometry(3.64, 0.08, 1.24);
+    const baseMat = new THREE.MeshStandardMaterial({
+      color: 0xd1d5db,
+      metalness: 0.8,
+      roughness: 0.25
+    });
+    const base = new THREE.Mesh(baseGeo, baseMat);
+    base.position.y = 0.04;
+    this.missionControlPanel.add(base);
+
+    // Main triple-display console rack
+    const screenGeo = new THREE.BoxGeometry(2.6, 0.82, 0.08);
     const screenMat = new THREE.MeshStandardMaterial({
-      color: 0x050810,
-      roughness: 0.2,
-      metalness: 0.9,
-      emissive: 0x002830,
-      emissiveIntensity: 0.6
+      color: 0x070d18,
+      roughness: 0.15,
+      metalness: 0.85,
+      emissive: 0x032438,
+      emissiveIntensity: 0.7
     });
     const screen = new THREE.Mesh(screenGeo, screenMat);
     screen.position.set(0, 1.35, -0.2);
@@ -154,7 +167,7 @@ export class HabitatObjects {
     this.missionControlPanel.add(screen);
 
     // Glowing cyan screen bezel
-    const bezelGeo = new THREE.BoxGeometry(2.44, 0.84, 0.04);
+    const bezelGeo = new THREE.BoxGeometry(2.64, 0.86, 0.04);
     const bezelMat = new THREE.MeshBasicMaterial({
       color: CONFIG.COLORS.TECH_CYAN,
       wireframe: true
@@ -190,24 +203,89 @@ export class HabitatObjects {
     InteractionManager.getInstance().register(interactable);
   }
 
+  /**
+   * Central Holographic Mars Projector in Hub
+   */
+  private buildCentralHologram(): void {
+    const holoGroup = new THREE.Group();
+    holoGroup.name = 'CentralHologram';
+    holoGroup.position.set(0, 0, -1.8);
+
+    // Sleek white circular pedestal
+    const pedestalGeo = new THREE.CylinderGeometry(0.65, 0.72, 0.35, 32);
+    const pedestalMat = new THREE.MeshStandardMaterial({
+      color: 0xf8fafc,
+      roughness: 0.2,
+      metalness: 0.15
+    });
+    const pedestal = new THREE.Mesh(pedestalGeo, pedestalMat);
+    pedestal.position.y = 0.175;
+    holoGroup.add(pedestal);
+
+    // Glowing emitter ring
+    const emitterGeo = new THREE.RingGeometry(0.3, 0.55, 32);
+    const emitterMat = new THREE.MeshBasicMaterial({
+      color: 0x00e5ff,
+      side: THREE.DoubleSide
+    });
+    const emitter = new THREE.Mesh(emitterGeo, emitterMat);
+    emitter.rotation.x = -Math.PI / 2;
+    emitter.position.y = 0.355;
+    holoGroup.add(emitter);
+
+    // Holographic wireframe Mars sphere
+    const sphereGeo = new THREE.SphereGeometry(0.42, 20, 16);
+    const sphereMat = new THREE.MeshBasicMaterial({
+      color: 0x00e5ff,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.7
+    });
+    this.hologramMesh = new THREE.Mesh(sphereGeo, sphereMat);
+    this.hologramMesh.position.y = 1.05;
+    holoGroup.add(this.hologramMesh);
+
+    // Holographic orbital ring
+    const ringGeo = new THREE.RingGeometry(0.55, 0.58, 32);
+    const ringMat = new THREE.MeshBasicMaterial({
+      color: 0x38bdf8,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.5
+    });
+    const orbitRing = new THREE.Mesh(ringGeo, ringMat);
+    orbitRing.rotation.x = Math.PI / 3;
+    orbitRing.position.y = 1.05;
+    holoGroup.add(orbitRing);
+
+    this.group.add(holoGroup);
+  }
+
   private buildLifeSupportConsole(): void {
     this.lifeSupportConsole = new THREE.Group();
     this.lifeSupportConsole.name = 'lifeSupportConsole';
-    this.lifeSupportConsole.position.set(-5.4, 0, -1.2);
-    this.lifeSupportConsole.rotation.y = Math.PI / 3;
+    this.lifeSupportConsole.position.set(-1.8, 0, 3.8);
+    this.lifeSupportConsole.rotation.y = Math.PI - 0.2;
 
-    // Terminal Body
-    const bodyGeo = new THREE.BoxGeometry(2.2, 1.8, 0.9);
+    // Terminal Body - High-Tech White Space Composite
+    const bodyGeo = new THREE.BoxGeometry(2.0, 1.8, 0.85);
     const bodyMat = new THREE.MeshStandardMaterial({
-      color: 0x1b2330,
-      roughness: 0.5,
-      metalness: 0.6
+      color: 0xf8fafc,
+      roughness: 0.25,
+      metalness: 0.15
     });
     const body = new THREE.Mesh(bodyGeo, bodyMat);
     body.position.y = 0.9;
     body.castShadow = true;
     body.receiveShadow = true;
     this.lifeSupportConsole.add(body);
+
+    // Brushed metal trim base
+    const baseGeo = new THREE.BoxGeometry(2.04, 0.08, 0.89);
+    const baseMat = new THREE.MeshStandardMaterial({ color: 0xd1d5db, metalness: 0.8, roughness: 0.3 });
+    const base = new THREE.Mesh(baseGeo, baseMat);
+    base.position.y = 0.04;
+    this.lifeSupportConsole.add(base);
 
     // Dynamic Telemetry Screen Canvas
     const screenData = AssetLoader.getInstance().createConsoleCanvas(512, 320);
@@ -216,12 +294,12 @@ export class HabitatObjects {
 
     this.renderLifeSupportCanvas(20.9, 420, 101.3, 'NOMINAL');
 
-    const screenGeo = new THREE.PlaneGeometry(1.6, 1.0);
+    const screenGeo = new THREE.PlaneGeometry(1.5, 0.95);
     const screenMat = new THREE.MeshBasicMaterial({
       map: screenData.texture
     });
     const screen = new THREE.Mesh(screenGeo, screenMat);
-    screen.position.set(0, 1.15, 0.46);
+    screen.position.set(0, 1.15, 0.44);
     this.lifeSupportConsole.add(screen);
 
     const badge = this.createInteractionBadge('LifeSupport', '1. SOPORTE VITAL', 0x00e5ff, 2.05);
@@ -317,21 +395,28 @@ export class HabitatObjects {
   private buildScienceStation(): void {
     this.scienceStation = new THREE.Group();
     this.scienceStation.name = 'scienceStation';
-    this.scienceStation.position.set(5.4, 0, -1.2);
+    this.scienceStation.position.set(6.0, 0, -3.2);
     this.scienceStation.rotation.y = -Math.PI / 3;
 
-    // Workbench
+    // Pristine White Laboratory Workbench
     const benchGeo = new THREE.BoxGeometry(2.4, 0.9, 1.0);
     const benchMat = new THREE.MeshStandardMaterial({
-      color: 0x222a38,
-      roughness: 0.3,
-      metalness: 0.8
+      color: 0xf8fafc,
+      roughness: 0.2,
+      metalness: 0.15
     });
     const bench = new THREE.Mesh(benchGeo, benchMat);
     bench.position.y = 0.45;
     bench.castShadow = true;
     bench.receiveShadow = true;
     this.scienceStation.add(bench);
+
+    // Brushed metal support base
+    const baseGeo = new THREE.BoxGeometry(2.44, 0.08, 1.04);
+    const baseMat = new THREE.MeshStandardMaterial({ color: 0xd1d5db, metalness: 0.8, roughness: 0.25 });
+    const base = new THREE.Mesh(baseGeo, baseMat);
+    base.position.y = 0.04;
+    this.scienceStation.add(base);
 
     // BIOGROWTH-01 Growth Chamber (Transparent glass cylinder with internal seedling)
     const chamberGlassGeo = new THREE.CylinderGeometry(0.35, 0.35, 0.7, 24);
@@ -348,9 +433,9 @@ export class HabitatObjects {
     chamberGlass.position.set(0, 1.3, 0);
     this.scienceStation.add(chamberGlass);
 
-    // Base & Top caps of chamber
+    // Base & Top caps of chamber - Clean aerospace white with chrome rings
     const capGeo = new THREE.CylinderGeometry(0.38, 0.38, 0.08, 24);
-    const capMat = new THREE.MeshStandardMaterial({ color: 0x111620, metalness: 0.9, roughness: 0.2 });
+    const capMat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.5, roughness: 0.2 });
     const capBottom = new THREE.Mesh(capGeo, capMat);
     capBottom.position.set(0, 0.95, 0);
     const capTop = new THREE.Mesh(capGeo, capMat);
@@ -376,7 +461,7 @@ export class HabitatObjects {
     }
 
     // Specialized LED Grow Light inside chamber
-    const growLight = new THREE.PointLight(0xd500f9, 0.6, 2); // Magenta / PAR spectrum
+    const growLight = new THREE.PointLight(0xd500f9, 0.8, 2.5); // Magenta / PAR spectrum
     growLight.position.set(0, 1.6, 0);
     this.scienceStation.add(growLight);
 
@@ -459,15 +544,15 @@ export class HabitatObjects {
   private buildResourceCabinet(): void {
     this.resourceCabinet = new THREE.Group();
     this.resourceCabinet.name = 'resourceCabinet';
-    this.resourceCabinet.position.set(-3.8, 0, 4.2);
-    this.resourceCabinet.rotation.y = Math.PI - 0.4;
+    this.resourceCabinet.position.set(1.8, 0, 3.8);
+    this.resourceCabinet.rotation.y = Math.PI + 0.2;
 
-    // Cabinet Frame
+    // Cabinet Frame - Crisp White Cleanroom Locker
     const frameGeo = new THREE.BoxGeometry(1.6, 2.2, 0.8);
     const frameMat = new THREE.MeshStandardMaterial({
-      color: 0x18202c,
-      roughness: 0.6,
-      metalness: 0.5
+      color: 0xf8fafc,
+      roughness: 0.25,
+      metalness: 0.15
     });
     const frame = new THREE.Mesh(frameGeo, frameMat);
     frame.position.y = 1.1;
@@ -477,7 +562,7 @@ export class HabitatObjects {
     // Hazard Stripes on cabinet face
     const stripeGeo = new THREE.PlaneGeometry(1.4, 0.15);
     const stripeMat = new THREE.MeshBasicMaterial({
-      color: CONFIG.COLORS.MARS_ORANGE
+      color: CONFIG.COLORS.TECH_AMBER
     });
     const stripe = new THREE.Mesh(stripeGeo, stripeMat);
     stripe.position.set(0, 1.8, 0.41);
@@ -486,7 +571,7 @@ export class HabitatObjects {
     // Replacement Filter Cartridge Model (Módulo HEPA-C1)
     const cartGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.45, 16);
     const cartMat = new THREE.MeshStandardMaterial({
-      color: 0x37474f,
+      color: 0x64748b,
       metalness: 0.8,
       roughness: 0.3
     });
@@ -529,20 +614,27 @@ export class HabitatObjects {
   private buildAirlock(): void {
     this.airlockPanel = new THREE.Group();
     this.airlockPanel.name = 'airlockPanel';
-    this.airlockPanel.position.set(3.8, 0, 4.2);
+    this.airlockPanel.position.set(8.5, 0, 5.0);
     this.airlockPanel.rotation.y = -Math.PI + 0.4;
 
-    // Airlock Door Bulkhead
+    // Airlock Door Bulkhead - Sterile White & Titanium
     const doorGeo = new THREE.BoxGeometry(1.8, 2.4, 0.3);
     const doorMat = new THREE.MeshStandardMaterial({
-      color: 0x263238,
-      metalness: 0.7,
-      roughness: 0.4
+      color: 0xf8fafc,
+      metalness: 0.4,
+      roughness: 0.3
     });
     const door = new THREE.Mesh(doorGeo, doorMat);
     door.position.y = 1.2;
     door.castShadow = true;
     this.airlockPanel.add(door);
+
+    // Steel door frame rim
+    const frameGeo = new THREE.BoxGeometry(1.86, 2.46, 0.28);
+    const frameMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8, roughness: 0.2 });
+    const frame = new THREE.Mesh(frameGeo, frameMat);
+    frame.position.y = 1.2;
+    this.airlockPanel.add(frame);
 
     // Status beacon (Green / Sealed)
     const beaconGeo = new THREE.SphereGeometry(0.06, 12, 12);
@@ -558,7 +650,7 @@ export class HabitatObjects {
     panel.position.set(0.65, 1.2, 0.16);
     this.airlockPanel.add(panel);
 
-    const badge = this.createInteractionBadge('Airlock', 'ESCLUSA DE SALIDA EVA', 0x90caf9, 2.35);
+    const badge = this.createInteractionBadge('Airlock', 'ESCLUSA DE SALIDA EVA', 0x38bdf8, 2.35);
     this.airlockPanel.add(badge);
 
     this.group.add(this.airlockPanel);
@@ -588,14 +680,14 @@ export class HabitatObjects {
   private buildMessHall(): void {
     const messHall = new THREE.Group();
     messHall.name = 'MessHall';
-    messHall.position.set(-6.8, 0, 1.8);
+    messHall.position.set(-6.8, 0, 4.5);
 
-    // Communal dining table
+    // Modern White Ergonomic Dining Table
     const tableGeo = new THREE.BoxGeometry(2.4, 0.75, 1.2);
     const tableMat = new THREE.MeshStandardMaterial({
-      color: 0x334155,
-      roughness: 0.3,
-      metalness: 0.6
+      color: 0xf8fafc,
+      roughness: 0.22,
+      metalness: 0.12
     });
     const table = new THREE.Mesh(tableGeo, tableMat);
     table.position.y = 0.375;
@@ -603,22 +695,41 @@ export class HabitatObjects {
     table.receiveShadow = true;
     messHall.add(table);
 
-    // 4 astronaut benches/stools
+    // Brushed metal table pedestal base
+    const pedGeo = new THREE.BoxGeometry(2.0, 0.06, 0.9);
+    const pedMat = new THREE.MeshStandardMaterial({ color: 0xd1d5db, metalness: 0.8, roughness: 0.25 });
+    const ped = new THREE.Mesh(pedGeo, pedMat);
+    ped.position.y = 0.03;
+    messHall.add(ped);
+
+    // 6 astronaut stools: white frames with charcoal padded cushions
     const stoolGeo = new THREE.CylinderGeometry(0.2, 0.2, 0.45, 16);
-    const stoolMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.7 });
+    const stoolMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.3 });
+    const cushionGeo = new THREE.CylinderGeometry(0.21, 0.21, 0.06, 16);
+    const cushionMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.7 });
+
     const stoolPositions = [
-      [-1.0, 0.8], [0, 0.8], [1.0, 0.8],
-      [-1.0, -0.8], [0, -0.8], [1.0, -0.8]
+      [-0.9, 0.8], [0, 0.8], [0.9, 0.8],
+      [-0.9, -0.8], [0, -0.8], [0.9, -0.8]
     ];
     for (const [sx, sz] of stoolPositions) {
+      const stoolGroup = new THREE.Group();
+      stoolGroup.position.set(sx, 0, sz);
+
       const stool = new THREE.Mesh(stoolGeo, stoolMat);
-      stool.position.set(sx, 0.225, sz);
+      stool.position.y = 0.225;
       stool.castShadow = true;
-      messHall.add(stool);
+      stoolGroup.add(stool);
+
+      const cushion = new THREE.Mesh(cushionGeo, cushionMat);
+      cushion.position.y = 0.46;
+      stoolGroup.add(cushion);
+
+      messHall.add(stoolGroup);
     }
 
     // Space food ration packs on table
-    const foodColors = [0xff5722, 0x4caf50, 0x2196f3, 0xffeb3b];
+    const foodColors = [0xff5722, 0x4caf50, 0x0284c7, 0xf59e0b];
     for (let i = 0; i < 4; i++) {
       const foodGeo = new THREE.BoxGeometry(0.25, 0.08, 0.18);
       const foodMat = new THREE.MeshStandardMaterial({ color: foodColors[i], roughness: 0.4 });
@@ -630,7 +741,7 @@ export class HabitatObjects {
 
     // Water & nutrient dispenser unit on wall
     const dispenserGeo = new THREE.BoxGeometry(0.6, 1.2, 0.4);
-    const dispenserMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.8 });
+    const dispenserMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.2, metalness: 0.15 });
     const dispenser = new THREE.Mesh(dispenserGeo, dispenserMat);
     dispenser.position.set(-1.6, 0.9, 0);
     messHall.add(dispenser);
@@ -669,36 +780,36 @@ export class HabitatObjects {
   private buildCrewQuarters(): void {
     const quarters = new THREE.Group();
     quarters.name = 'CrewQuarters';
-    quarters.position.set(-6.8, 0, -4.8);
+    quarters.position.set(-6.8, 0, -5.5);
 
-    // 3 Capsule Sleeping Berths
+    // 3 Capsule Sleeping Berths in Pristine Space White
     for (let i = 0; i < 3; i++) {
-      const berthGeo = new THREE.BoxGeometry(1.2, 1.0, 2.2);
-      const berthMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.6 });
+      const berthGeo = new THREE.BoxGeometry(1.2, 1.1, 2.2);
+      const berthMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.25, metalness: 0.1 });
       const berth = new THREE.Mesh(berthGeo, berthMat);
-      berth.position.set((i - 1) * 1.5, 0.5, 0);
+      berth.position.set((i - 1) * 1.5, 0.55, 0);
       berth.castShadow = true;
       quarters.add(berth);
 
       // Mattress & blanket
       const bedGeo = new THREE.BoxGeometry(1.0, 0.2, 1.9);
-      const bedMat = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.8 });
+      const bedMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.8 });
       const bed = new THREE.Mesh(bedGeo, bedMat);
-      bed.position.set((i - 1) * 1.5, 1.0, 0);
+      bed.position.set((i - 1) * 1.5, 1.05, 0);
       quarters.add(bed);
 
-      // Thermal Pillow
+      // Ergonomic Pillow
       const pillowGeo = new THREE.BoxGeometry(0.7, 0.12, 0.4);
-      const pillowMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8 });
+      const pillowMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
       const pillow = new THREE.Mesh(pillowGeo, pillowMat);
-      pillow.position.set((i - 1) * 1.5, 1.15, -0.7);
+      pillow.position.set((i - 1) * 1.5, 1.2, -0.7);
       quarters.add(pillow);
 
       // Personal reading light
       const lightGeo = new THREE.SphereGeometry(0.05, 8, 8);
-      const lightMat = new THREE.MeshBasicMaterial({ color: 0xffe0b2 });
+      const lightMat = new THREE.MeshBasicMaterial({ color: 0x90caf9 });
       const lamp = new THREE.Mesh(lightGeo, lightMat);
-      lamp.position.set((i - 1) * 1.5 + 0.4, 1.3, -0.8);
+      lamp.position.set((i - 1) * 1.5 + 0.4, 1.35, -0.8);
       quarters.add(lamp);
     }
 
@@ -728,20 +839,27 @@ export class HabitatObjects {
   private buildGeologyLab(): void {
     const geoLab = new THREE.Group();
     geoLab.name = 'GeologyLab';
-    geoLab.position.set(6.8, 0, -3.2);
+    geoLab.position.set(7.5, 0, -6.0);
 
-    // Workbench
+    // Pristine White Workbench
     const benchGeo = new THREE.BoxGeometry(2.4, 0.85, 1.1);
-    const benchMat = new THREE.MeshStandardMaterial({ color: 0x223042, metalness: 0.7, roughness: 0.3 });
+    const benchMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, metalness: 0.15, roughness: 0.2 });
     const bench = new THREE.Mesh(benchGeo, benchMat);
     bench.position.y = 0.425;
     bench.castShadow = true;
     geoLab.add(bench);
 
-    // Microscope model
-    const baseGeo = new THREE.BoxGeometry(0.3, 0.08, 0.3);
-    const scopeMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.8 });
-    const scopeBase = new THREE.Mesh(baseGeo, scopeMat);
+    // Brushed metal support base
+    const baseGeo = new THREE.BoxGeometry(2.44, 0.08, 1.14);
+    const baseMat = new THREE.MeshStandardMaterial({ color: 0xd1d5db, metalness: 0.8, roughness: 0.25 });
+    const base = new THREE.Mesh(baseGeo, baseMat);
+    base.position.y = 0.04;
+    geoLab.add(base);
+
+    // High-Precision Digital Microscope model
+    const scopeMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.8, roughness: 0.2 });
+    const scopeBaseGeo = new THREE.BoxGeometry(0.3, 0.08, 0.3);
+    const scopeBase = new THREE.Mesh(scopeBaseGeo, scopeMat);
     scopeBase.position.set(-0.6, 0.88, 0);
     geoLab.add(scopeBase);
 
@@ -786,11 +904,11 @@ export class HabitatObjects {
   private buildSuitBay(): void {
     const suitBay = new THREE.Group();
     suitBay.name = 'SuitBay';
-    suitBay.position.set(6.2, 0, 4.2);
+    suitBay.position.set(6.2, 0, 3.5);
 
-    // Wall rack frame
+    // Wall rack frame - Crisp white gantry
     const rackGeo = new THREE.BoxGeometry(2.6, 2.4, 0.15);
-    const rackMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8 });
+    const rackMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.25, metalness: 0.2 });
     const rack = new THREE.Mesh(rackGeo, rackMat);
     rack.position.set(0, 1.2, -0.6);
     suitBay.add(rack);
@@ -804,9 +922,9 @@ export class HabitatObjects {
       // Torso & Life Support PLSS backpack
       const torsoGeo = new THREE.BoxGeometry(0.65, 0.85, 0.45);
       const suitFabricMat = new THREE.MeshStandardMaterial({
-        color: 0xededed,
-        roughness: 0.6,
-        metalness: 0.1
+        color: 0xffffff,
+        roughness: 0.5,
+        metalness: 0.08
       });
       const torso = new THREE.Mesh(torsoGeo, suitFabricMat);
       torso.position.y = 1.0;
@@ -865,7 +983,7 @@ export class HabitatObjects {
     exteriorAirlock.position.set(11.8, 0, 5.5);
 
     const doorGeo = new THREE.BoxGeometry(0.3, 2.6, 2.0);
-    const doorMat = new THREE.MeshStandardMaterial({ color: 0x2d3748, metalness: 0.9, roughness: 0.2 });
+    const doorMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9, roughness: 0.2 });
     const door = new THREE.Mesh(doorGeo, doorMat);
     door.position.y = 1.3;
     door.castShadow = true;
@@ -890,11 +1008,11 @@ export class HabitatObjects {
     };
     InteractionManager.getInstance().register(interactableDoor);
 
-    // 3 Collectible Rock Samples on Mars Ground
+    // 3 Collectible Rock Samples on Mars Ground (Strictly placed outside on Martian ground)
     const rockData = [
-      { id: 'rockSampleAlpha', name: 'Muestra Alfa (Basalto de Argyre)', pos: [18, 0.2, 8], color: 0x8d6e63, badgeColor: 0xff5722 },
-      { id: 'rockSampleBeta', name: 'Muestra Beta (Sulfatos Hidratados)', pos: [8, 0.2, 22], color: 0xffb74d, badgeColor: 0xffd600 },
-      { id: 'rockSampleGamma', name: 'Muestra Gamma (Hematita Marciana)', pos: [-20, 0.2, 16], color: 0x607d8b, badgeColor: 0x00e5ff }
+      { id: 'rockSampleAlpha', name: 'Muestra Alfa (Basalto de Argyre)', pos: [21, 0.2, 10], color: 0x8d6e63, badgeColor: 0xff5722 },
+      { id: 'rockSampleBeta', name: 'Muestra Beta (Sulfatos Hidratados)', pos: [11, 0.2, 24], color: 0xffb74d, badgeColor: 0xffd600 },
+      { id: 'rockSampleGamma', name: 'Muestra Gamma (Hematita Marciana)', pos: [-22, 0.2, 18], color: 0x607d8b, badgeColor: 0x00e5ff }
     ];
 
     for (const r of rockData) {
@@ -932,6 +1050,12 @@ export class HabitatObjects {
 
   public update(delta: number): void {
     this.animTime += delta;
+
+    // Rotate central hologram wireframe
+    if (this.hologramMesh) {
+      this.hologramMesh.rotation.y += delta * 0.5;
+    }
+
     // Animate holographic interaction badges: rotation and smooth bobbing
     const badges = this.group.children.flatMap((g) => g.children.filter((c) => c.name.startsWith('Badge_')));
     for (const b of badges) {

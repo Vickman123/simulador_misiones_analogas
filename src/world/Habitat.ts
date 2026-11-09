@@ -33,40 +33,53 @@ export class Habitat {
     const radius = CONFIG.HABITAT.RADIUS;
     const height = CONFIG.HABITAT.HEIGHT;
 
-    // 1. Industrial Floor
+    // 1. Pristine White Cleanroom Epoxy Floor
     const floorTexture = AssetLoader.getInstance().createFloorTexture();
     const floorGeo = new THREE.CylinderGeometry(radius, radius, 0.2, 32);
     const floorMat = new THREE.MeshStandardMaterial({
       map: floorTexture,
-      roughness: 0.6,
-      metalness: 0.4
+      roughness: 0.22,
+      metalness: 0.1
     });
     const floor = new THREE.Mesh(floorGeo, floorMat);
     floor.position.y = -0.1;
     floor.receiveShadow = true;
     this.group.add(floor);
 
-    // 2. Ceiling Structure
+    // 2. High-Grade White Cleanroom Ceiling Structure
     const ceilingGeo = new THREE.CylinderGeometry(radius, radius, 0.2, 32);
     const ceilingMat = new THREE.MeshStandardMaterial({
-      color: 0x181f2a,
-      roughness: 0.7,
-      metalness: 0.3
+      color: 0xffffff,
+      roughness: 0.35,
+      metalness: 0.08
     });
     const ceiling = new THREE.Mesh(ceilingGeo, ceilingMat);
     ceiling.position.y = height + 0.1;
     this.group.add(ceiling);
 
+    // Ceiling Recessed Luminous Ring Fixture in Central Hub
+    const luminaireGeo = new THREE.TorusGeometry(3.6, 0.08, 16, 48);
+    const luminaireMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      emissive: 0xffffff,
+      emissiveIntensity: 0.95,
+      roughness: 0.1
+    });
+    const luminaire = new THREE.Mesh(luminaireGeo, luminaireMat);
+    luminaire.rotation.x = Math.PI / 2;
+    luminaire.position.set(0, height - 0.02, 0);
+    this.group.add(luminaire);
+
     // 3. Habitat Perimeter Walls with Large Observation Window
-    // We create wall segments around the perimeter, leaving an opening in the north (-Z) for the Martian window.
+    // Sterile satin-white aerospace composite panels
     const segments = 16;
     const angleStep = (Math.PI * 2) / segments;
     const wallHeight = height;
 
     const wallMat = new THREE.MeshStandardMaterial({
-      color: 0x222a38,
-      roughness: 0.75,
-      metalness: 0.25
+      color: 0xf8fafc,
+      roughness: 0.3,
+      metalness: 0.12
     });
 
     for (let i = 0; i < segments; i++) {
@@ -90,12 +103,12 @@ export class Habitat {
       }
     }
 
-    // 4. Reinforced Structural Vertical Columns (Ribs)
-    const ribGeo = new THREE.BoxGeometry(0.3, wallHeight, 0.35);
+    // 4. White Composite Vertical Columns (Ribs) with brushed metallic trims
+    const ribGeo = new THREE.BoxGeometry(0.32, wallHeight, 0.36);
     const ribMat = new THREE.MeshStandardMaterial({
-      color: 0x0f1520,
-      metalness: 0.8,
-      roughness: 0.2
+      color: 0xffffff,
+      metalness: 0.35,
+      roughness: 0.25
     });
 
     for (let i = 0; i < segments; i++) {
@@ -118,73 +131,160 @@ export class Habitat {
   }
 
   /**
-   * Internal dividing walls creating specialized analog habitat rooms:
+   * Internal dividing walls creating 4 specialized analog habitat rooms:
    * - Central Hub (Center)
-   * - Mess Hall & Galley (West)
-   * - Crew Quarters (North-West)
-   * - Science & Geology Lab (East)
-   * - EVA Suit Bay & Airlock Chamber (South-East)
+   * - West Wing:
+   *     - Zona 01: Comedor y Convivencia (Mess Hall & Galley)
+   *     - Zona 02: Camarotes de la Tripulación (Crew Quarters)
+   * - East Wing:
+   *     - Zona 03: Laboratorio Científico y Geología (Science & Geology Lab)
+   *     - Zona 04: Esclusa y Estación de Trajes EVA (Suit Bay & Airlock)
    */
   private buildInteriorPartitions(height: number): void {
     const partitionMat = new THREE.MeshStandardMaterial({
-      color: 0x1e2736,
-      roughness: 0.6,
-      metalness: 0.4
+      color: 0xf1f5f9,
+      roughness: 0.32,
+      metalness: 0.12
     });
 
-    const trimMat = new THREE.MeshBasicMaterial({
-      color: CONFIG.COLORS.TECH_CYAN,
-      wireframe: false
+    const headerMat = new THREE.MeshStandardMaterial({
+      color: 0xe2e8f0,
+      roughness: 0.25,
+      metalness: 0.3
     });
 
-    // West Partition: separates Central Hub from Mess Hall and Crew Quarters
-    // Wall segment 1 (North of doorway)
-    const westWall1 = new THREE.Mesh(new THREE.BoxGeometry(0.2, height, 4.0), partitionMat);
-    westWall1.position.set(-3.2, height / 2, -5.5);
-    this.group.add(westWall1);
+    const cyanTrimMat = new THREE.MeshBasicMaterial({
+      color: CONFIG.COLORS.TECH_CYAN
+    });
 
-    // Wall segment 2 (South of doorway, separates Mess Hall)
-    const westWall2 = new THREE.Mesh(new THREE.BoxGeometry(0.2, height, 4.5), partitionMat);
-    westWall2.position.set(-3.2, height / 2, 3.5);
-    this.group.add(westWall2);
+    // Helper to create illuminated doorway sign plates
+    const createDoorSign = (title: string, subtitle: string, colorHex: string): THREE.Mesh => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d')!;
 
-    // Doorway Header over West entrance
-    const westDoorHeader = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.8, 2.6), partitionMat);
-    westDoorHeader.position.set(-3.2, height - 0.4, -1.0);
-    this.group.add(westDoorHeader);
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, 512, 128);
 
-    // Divider between Crew Quarters and Mess Hall (running east-west)
-    const dormDivider = new THREE.Mesh(new THREE.BoxGeometry(6.5, height, 0.2), partitionMat);
-    dormDivider.position.set(-6.5, height / 2, -1.5);
+      ctx.strokeStyle = colorHex;
+      ctx.lineWidth = 6;
+      ctx.strokeRect(6, 6, 500, 116);
+
+      ctx.fillStyle = colorHex;
+      ctx.font = 'bold 28px "Rajdhani", "Orbitron", monospace, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(title, 256, 50);
+
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = 'bold 20px monospace, sans-serif';
+      ctx.fillText(subtitle, 256, 92);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.minFilter = THREE.LinearFilter;
+      const signMat = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+      const signGeo = new THREE.PlaneGeometry(1.6, 0.4);
+      return new THREE.Mesh(signGeo, signMat);
+    };
+
+    // ==========================================
+    // WEST WING PARTITION (x = -3.2)
+    // ==========================================
+    // 1. North Wall Segment: from z = -10.5 to z = -4.5 (length 6.0, center z = -7.5)
+    const westNorthWall = new THREE.Mesh(new THREE.BoxGeometry(0.2, height, 6.0), partitionMat);
+    westNorthWall.position.set(-3.2, height / 2, -7.5);
+    this.group.add(westNorthWall);
+
+    // Doorway 1: Crew Quarters (z from -4.5 to -2.5, width 2.0m, center z = -3.5)
+    const westDoor1Header = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.9, 2.0), headerMat);
+    westDoor1Header.position.set(-3.2, height - 0.45, -3.5);
+    this.group.add(westDoor1Header);
+
+    const signCrew = createDoorSign('ZONA 02 // DORMITORIOS', 'CAMAROTES TRIPULACIÓN', '#38bdf8');
+    signCrew.position.set(-3.05, height - 0.45, -3.5);
+    signCrew.rotation.y = -Math.PI / 2;
+    this.group.add(signCrew);
+
+    // 2. Center Wall Segment: from z = -2.5 to z = 0.5 (length 3.0, center z = -1.0)
+    const westCenterWall = new THREE.Mesh(new THREE.BoxGeometry(0.2, height, 3.0), partitionMat);
+    westCenterWall.position.set(-3.2, height / 2, -1.0);
+    this.group.add(westCenterWall);
+
+    // 3. Divider Wall between Crew Quarters and Mess Hall (z = -1.0, x from -10.5 to -3.2)
+    const dormDivider = new THREE.Mesh(new THREE.BoxGeometry(7.3, height, 0.2), partitionMat);
+    dormDivider.position.set(-6.85, height / 2, -1.0);
     this.group.add(dormDivider);
 
-    // East Partition: separates Central Hub from Science Lab and Airlock
-    // Wall segment 1 (Science Lab north)
-    const eastWall1 = new THREE.Mesh(new THREE.BoxGeometry(0.2, height, 4.0), partitionMat);
-    eastWall1.position.set(3.2, height / 2, -5.5);
-    this.group.add(eastWall1);
+    // Doorway 2: Mess Hall (z from 0.5 to 2.5, width 2.0m, center z = 1.5)
+    const westDoor2Header = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.9, 2.0), headerMat);
+    westDoor2Header.position.set(-3.2, height - 0.45, 1.5);
+    this.group.add(westDoor2Header);
 
-    // Wall segment 2 (Airlock wall)
-    const eastWall2 = new THREE.Mesh(new THREE.BoxGeometry(0.2, height, 4.5), partitionMat);
-    eastWall2.position.set(3.2, height / 2, 3.5);
-    this.group.add(eastWall2);
+    const signMess = createDoorSign('ZONA 01 // COMEDOR', 'GALLEY & CONVIVENCIA', '#fbbf24');
+    signMess.position.set(-3.05, height - 0.45, 1.5);
+    signMess.rotation.y = -Math.PI / 2;
+    this.group.add(signMess);
 
-    // Doorway Header over East entrance
-    const eastDoorHeader = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.8, 2.6), partitionMat);
-    eastDoorHeader.position.set(3.2, height - 0.4, -1.0);
-    this.group.add(eastDoorHeader);
+    // 4. South Wall Segment: from z = 2.5 to z = 10.5 (length 8.0, center z = 6.5)
+    const westSouthWall = new THREE.Mesh(new THREE.BoxGeometry(0.2, height, 8.0), partitionMat);
+    westSouthWall.position.set(-3.2, height / 2, 6.5);
+    this.group.add(westSouthWall);
 
-    // Divider between Science Lab and Airlock Chamber
-    const labDivider = new THREE.Mesh(new THREE.BoxGeometry(6.5, height, 0.2), partitionMat);
-    labDivider.position.set(6.5, height / 2, 1.2);
+    // ==========================================
+    // EAST WING PARTITION (x = 3.2)
+    // ==========================================
+    // 1. North Wall Segment: from z = -10.5 to z = -4.5 (length 6.0, center z = -7.5)
+    const eastNorthWall = new THREE.Mesh(new THREE.BoxGeometry(0.2, height, 6.0), partitionMat);
+    eastNorthWall.position.set(3.2, height / 2, -7.5);
+    this.group.add(eastNorthWall);
+
+    // Doorway 3: Science & Geology Lab (z from -4.5 to -2.5, width 2.0m, center z = -3.5)
+    const eastDoor1Header = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.9, 2.0), headerMat);
+    eastDoor1Header.position.set(3.2, height - 0.45, -3.5);
+    this.group.add(eastDoor1Header);
+
+    const signScience = createDoorSign('ZONA 03 // LABORATORIO', 'GEOLOGÍA & BIOLOGÍA', '#4ade80');
+    signScience.position.set(3.05, height - 0.45, -3.5);
+    signScience.rotation.y = Math.PI / 2;
+    this.group.add(signScience);
+
+    // 2. Center Wall Segment: from z = -2.5 to z = 0.5 (length 3.0, center z = -1.0)
+    const eastCenterWall = new THREE.Mesh(new THREE.BoxGeometry(0.2, height, 3.0), partitionMat);
+    eastCenterWall.position.set(3.2, height / 2, -1.0);
+    this.group.add(eastCenterWall);
+
+    // 3. Divider Wall between Science Lab and Suit Bay (z = -1.0, x from 3.2 to 10.5)
+    const labDivider = new THREE.Mesh(new THREE.BoxGeometry(7.3, height, 0.2), partitionMat);
+    labDivider.position.set(6.85, height / 2, -1.0);
     this.group.add(labDivider);
 
-    // Architectural Doorway trim lights
-    const trimPositions = [-3.2, 3.2];
-    for (const tx of trimPositions) {
-      const arch = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.05, 2.6), trimMat);
-      arch.position.set(tx, height - 0.82, -1.0);
-      this.group.add(arch);
+    // Doorway 4: EVA Suit Bay & Airlock (z from 0.5 to 2.5, width 2.0m, center z = 1.5)
+    const eastDoor2Header = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.9, 2.0), headerMat);
+    eastDoor2Header.position.set(3.2, height - 0.45, 1.5);
+    this.group.add(eastDoor2Header);
+
+    const signSuit = createDoorSign('ZONA 04 // ESCLUSA EVA', 'TRAJES Y SALIDA A MARTE', '#facc15');
+    signSuit.position.set(3.05, height - 0.45, 1.5);
+    signSuit.rotation.y = Math.PI / 2;
+    this.group.add(signSuit);
+
+    // 4. South Wall Segment: from z = 2.5 to z = 10.5 (length 8.0, center z = 6.5)
+    const eastSouthWall = new THREE.Mesh(new THREE.BoxGeometry(0.2, height, 8.0), partitionMat);
+    eastSouthWall.position.set(3.2, height / 2, 6.5);
+    this.group.add(eastSouthWall);
+
+    // Architectural Doorway trim lights along archways
+    const archwayConfigs = [
+      { x: -3.2, z: -3.5 },
+      { x: -3.2, z: 1.5 },
+      { x: 3.2, z: -3.5 },
+      { x: 3.2, z: 1.5 }
+    ];
+
+    for (const cfg of archwayConfigs) {
+      const archLight = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.04, 2.0), cyanTrimMat);
+      archLight.position.set(cfg.x, height - 0.92, cfg.z);
+      this.group.add(archLight);
     }
   }
 
@@ -234,11 +334,11 @@ export class Habitat {
     const windowGroup = new THREE.Group();
     windowGroup.name = 'PanoramicWindow';
 
-    // Window frame border
+    // Window frame border - brushed aerospace titanium/white
     const frameMat = new THREE.MeshStandardMaterial({
-      color: 0x111622,
-      metalness: 0.9,
-      roughness: 0.2
+      color: 0xe2e8f0,
+      metalness: 0.8,
+      roughness: 0.25
     });
 
     const windowWidth = CONFIG.HABITAT.WINDOW_WIDTH;

@@ -58,24 +58,31 @@ export class HabitatEnvironment {
 
   private createMartianTerrain(): void {
     // Large undulating ground outside the habitat
-    const terrainGeo = new THREE.PlaneGeometry(240, 240, 48, 48);
+    const terrainGeo = new THREE.PlaneGeometry(260, 260, 64, 64);
     terrainGeo.rotateX(-Math.PI / 2);
 
     const pos = terrainGeo.attributes.position;
     for (let i = 0; i < pos.count; i++) {
       const x = pos.getX(i);
       const z = pos.getZ(i);
-      // Create natural crater ridges and Martian sand dunes using multi-frequency sinusoids
       const dist = Math.sqrt(x * x + z * z);
-      let y = 0;
-      if (dist > CONFIG.HABITAT.RADIUS + 3) {
-        y = Math.sin(x * 0.04) * 2.5 + Math.cos(z * 0.035) * 2.8 + Math.sin((x + z) * 0.08) * 1.2;
+
+      // Protect habitat interior (radius 11.5) and exterior ramp (+X direction around z: 5.5)
+      const isNearRamp = x >= 8.0 && x <= 20.0 && z >= 2.0 && z <= 9.0;
+      const clearRadius = isNearRamp ? 21.0 : (CONFIG.HABITAT.RADIUS + 6.0); // at least 17.5m
+
+      let y = -0.65; // Foundation base well below floor (floor is at y = 0.0)
+
+      if (dist > clearRadius && !isNearRamp) {
+        // Smooth transition blend weight from 0 at clearRadius to 1 at clearRadius + 8
+        const blend = Math.min(1.0, Math.max(0.0, (dist - clearRadius) / 8.0));
+        const rawWave = Math.sin(x * 0.04) * 2.5 + Math.cos(z * 0.035) * 2.8 + Math.sin((x + z) * 0.08) * 1.2;
+        let waveHeight = rawWave;
         // Distant crater rim to the north
         if (z < -30) {
-          y += Math.pow(Math.abs(z + 30) * 0.12, 1.4);
+          waveHeight += Math.pow(Math.abs(z + 30) * 0.12, 1.4);
         }
-      } else {
-        y = -0.05; // Flat surface directly under habitat
+        y = -0.65 + blend * (waveHeight + 0.3);
       }
       pos.setY(i, y);
     }
@@ -89,11 +96,11 @@ export class HabitatEnvironment {
     });
 
     const terrain = new THREE.Mesh(terrainGeo, terrainMat);
-    terrain.position.set(0, -0.05, 0);
+    terrain.position.set(0, 0, 0);
     terrain.receiveShadow = true;
     this.group.add(terrain);
 
-    // Scattered Martian boulders
+    // Scattered Martian boulders - strictly placed OUTDOORS, completely clear of habitat
     const rockGeo = new THREE.DodecahedronGeometry(1, 1);
     const rockMat = new THREE.MeshStandardMaterial({
       color: 0x823b1e,
@@ -101,18 +108,23 @@ export class HabitatEnvironment {
       metalness: 0.1
     });
 
-    const rockCount = 45;
+    const rockCount = 50;
     for (let i = 0; i < rockCount; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const radius = 10 + Math.random() * 60;
+      // Spawn only outside habitat clear radius (minimum 19.5m)
+      const radius = 19.5 + Math.random() * 65;
       const rx = Math.cos(angle) * radius;
       const rz = Math.sin(angle) * radius;
 
-      // Don't place rocks right in front of door
+      // Ensure no rocks land on the airlock ramp approach
+      if (rx > 9.0 && rx < 22.0 && rz > 1.5 && rz < 9.5) {
+        continue;
+      }
+
       const rock = new THREE.Mesh(rockGeo, rockMat);
-      const scale = 0.4 + Math.random() * 1.5;
+      const scale = 0.4 + Math.random() * 1.4;
       rock.scale.set(scale, scale * (0.6 + Math.random() * 0.5), scale);
-      rock.position.set(rx, scale * 0.4, rz);
+      rock.position.set(rx, scale * 0.35 - 0.3, rz);
       rock.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
       rock.castShadow = true;
       this.group.add(rock);

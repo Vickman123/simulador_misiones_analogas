@@ -114,10 +114,11 @@ export class AssetLoader {
   }
 
   /**
-   * Generates a seamless metal floor tile texture
+   * Generates a seamless high-gloss white cleanroom epoxy floor texture
+   * NASA / ESA / SpaceX cleanroom aesthetic with anti-static seams and subtle guide markings
    */
   public createFloorTexture(): THREE.CanvasTexture {
-    const key = 'habitat_floor_texture';
+    const key = 'habitat_white_cleanroom_floor_texture';
     if (this.textureCache.has(key)) {
       return this.textureCache.get(key) as THREE.CanvasTexture;
     }
@@ -127,32 +128,63 @@ export class AssetLoader {
     canvas.height = 512;
     const ctx = canvas.getContext('2d')!;
 
-    // Base dark industrial gray
-    ctx.fillStyle = '#141822';
+    // 1. Pristine white epoxy cleanroom base
+    ctx.fillStyle = '#f8fafc';
     ctx.fillRect(0, 0, 512, 512);
 
-    // Tread plate / non-slip grip pattern
-    ctx.fillStyle = '#222938';
-    for (let x = 0; x < 512; x += 16) {
-      for (let y = 0; y < 512; y += 16) {
-        ctx.fillRect(x + 2, y + 2, 6, 6);
-        ctx.fillRect(x + 10, y + 10, 6, 6);
+    // 2. Subtle anti-static micro-tiles
+    ctx.fillStyle = '#ffffff';
+    for (let x = 8; x < 512; x += 64) {
+      for (let y = 8; y < 512; y += 64) {
+        ctx.fillRect(x + 2, y + 2, 60, 60);
       }
     }
 
-    // Panel border seams
-    ctx.strokeStyle = '#090c12';
-    ctx.lineWidth = 4;
+    // 3. Crisp architectural seam grid
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 1.5;
+    for (let x = 0; x <= 512; x += 64) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, 512);
+      ctx.stroke();
+    }
+    for (let y = 0; y <= 512; y += 64) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(512, y);
+      ctx.stroke();
+    }
+
+    // 4. Subtle ESD corner registration marks
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 1;
+    for (let x = 0; x <= 512; x += 64) {
+      for (let y = 0; y <= 512; y += 64) {
+        ctx.beginPath();
+        ctx.moveTo(x - 4, y);
+        ctx.lineTo(x + 4, y);
+        ctx.moveTo(x, y - 4);
+        ctx.lineTo(x, y + 4);
+        ctx.stroke();
+      }
+    }
+
+    // 5. Cleanroom perimeter border
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 3;
     ctx.strokeRect(0, 0, 512, 512);
 
-    // Hazard marking stripe in center
-    ctx.fillStyle = 'rgba(255, 87, 34, 0.2)';
-    ctx.fillRect(0, 240, 512, 32);
+    // 6. Subtle technical cyan guideline stripe
+    ctx.fillStyle = 'rgba(14, 165, 233, 0.12)';
+    ctx.fillRect(0, 252, 512, 8);
+    ctx.fillStyle = 'rgba(14, 165, 233, 0.4)';
+    ctx.fillRect(0, 255, 512, 2);
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(4, 4);
+    texture.repeat.set(6, 6);
     this.textureCache.set(key, texture);
     return texture;
   }

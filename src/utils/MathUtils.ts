@@ -2,6 +2,13 @@
  * Mathematical utilities and collision containment helpers.
  */
 
+export interface BoundingBox2D {
+  minX: number;
+  maxX: number;
+  minZ: number;
+  maxZ: number;
+}
+
 export class MathUtils {
   public static clamp(val: number, min: number, max: number): number {
     return Math.max(min, Math.min(max, val));
@@ -21,6 +28,47 @@ export class MathUtils {
   }
 
   /**
+   * Resolve player movement against 2D Axis-Aligned Bounding Boxes with sliding collision
+   */
+  public static resolveCollisions(
+    targetX: number,
+    targetZ: number,
+    boxes: BoundingBox2D[],
+    playerRadius: number = 0.32
+  ): { x: number; z: number } {
+    let resolvedX = targetX;
+    let resolvedZ = targetZ;
+
+    for (const b of boxes) {
+      const minX = b.minX - playerRadius;
+      const maxX = b.maxX + playerRadius;
+      const minZ = b.minZ - playerRadius;
+      const maxZ = b.maxZ + playerRadius;
+
+      if (resolvedX > minX && resolvedX < maxX && resolvedZ > minZ && resolvedZ < maxZ) {
+        const dLeft = resolvedX - minX;
+        const dRight = maxX - resolvedX;
+        const dTop = resolvedZ - minZ;
+        const dBottom = maxZ - resolvedZ;
+
+        const minOverlap = Math.min(dLeft, dRight, dTop, dBottom);
+
+        if (minOverlap === dLeft) {
+          resolvedX = minX;
+        } else if (minOverlap === dRight) {
+          resolvedX = maxX;
+        } else if (minOverlap === dTop) {
+          resolvedZ = minZ;
+        } else {
+          resolvedZ = maxZ;
+        }
+      }
+    }
+
+    return { x: resolvedX, z: resolvedZ };
+  }
+
+  /**
    * Constrain a 3D position vector (x, z) within an elliptical/capsule walkable boundary
    * representing the interior of the habitat module.
    */
@@ -32,7 +80,7 @@ export class MathUtils {
     let outX = MathUtils.clamp(x, bounds.minX, bounds.maxX);
     let outZ = MathUtils.clamp(z, bounds.minZ, bounds.maxZ);
 
-    // Collision with fixed consoles/modules (prevent walking through equipment)
+    // Collision with fixed circular obstacles
     if (bounds.obstacles) {
       for (const obs of bounds.obstacles) {
         const dx = outX - obs.x;
