@@ -148,7 +148,38 @@ export class Application {
     });
 
     EventBus.getInstance().on('ui:togglePause', () => {
+      // If map is currently open, close map instead of pausing
+      const mapModal = document.getElementById('modal-habitat-map');
+      if (mapModal && !mapModal.classList.contains('hidden')) {
+        mapModal.classList.add('hidden');
+        return;
+      }
       this.togglePause();
+    });
+
+    // Isometric Habitat Map Modal
+    const mapModal = document.getElementById('modal-habitat-map');
+    const toggleMapModal = () => {
+      this.audioManager.playClick();
+      if (mapModal) {
+        const isHidden = mapModal.classList.contains('hidden');
+        if (isHidden) {
+          mapModal.classList.remove('hidden');
+          if (document.pointerLockElement) {
+            document.exitPointerLock();
+          }
+        } else {
+          mapModal.classList.add('hidden');
+        }
+      }
+    };
+
+    bindFastClick(document.getElementById('btn-open-map'), toggleMapModal);
+    bindFastClick(document.getElementById('btn-close-map'), toggleMapModal);
+    bindFastClick(document.getElementById('btn-dismiss-map'), toggleMapModal);
+
+    EventBus.getInstance().on('ui:toggleMap', () => {
+      toggleMapModal();
     });
 
     // Fullscreen Toggles (HUD, Main Menu, Pause Menu)

@@ -142,6 +142,11 @@ export class InputManager {
       InteractionManager.getInstance().interactCurrent();
     }
 
+    if (e.code === 'KeyM') {
+      // Direct isometric map shortcut
+      EventBus.getInstance().emit('ui:toggleMap');
+    }
+
     if (e.code === 'Escape') {
       EventBus.getInstance().emit('ui:togglePause');
     }

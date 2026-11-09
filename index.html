@@ -68,6 +68,11 @@
         <button id="btn-fullscreen-toggle" class="btn-action btn-fullscreen" title="Pantalla Completa" aria-label="Pantalla Completa">
           <span class="fs-icon">⛶</span>
         </button>
+        <!-- Isometric Map Button -->
+        <button id="btn-open-map" class="btn-action btn-map" title="Ver Plano Isométrico del Hábitat [M]">
+          <span>🗺️</span>
+          <span class="btn-map-label">MAPA</span>
+        </button>
         <!-- Mobile Objectives Toggle Button -->
         <button id="btn-toggle-objectives" class="btn-action btn-objectives" title="Ver objetivos de misión">
           <span>📋</span>
@@ -613,6 +618,51 @@
               VOLVER AL MENÚ
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Habitat Isometric Map Modal -->
+    <div id="modal-habitat-map" class="modal-backdrop hidden">
+      <div class="modal-card map-card">
+        <div class="modal-header">
+          <div class="modal-tag">PLANO ARQUITECTÓNICO 3D - SPACE TECH LABS</div>
+          <h2>ESTACIÓN ANÁLOGA: MAPA ISOMÉTRICO (35m)</h2>
+          <button class="btn-close-modal" id="btn-close-map" aria-label="Cerrar plano">&times;</button>
+        </div>
+        <div class="map-modal-body">
+          <div class="map-image-wrapper">
+            <img src="./assets/habitat_isometric_map.jpg" alt="Mapa Isométrico del Hábitat Marciano" class="habitat-map-img" id="habitat-map-img" />
+          </div>
+          <div class="map-zones-grid">
+            <div class="map-zone-pill hub">
+              <span class="zone-badge">ATRIO</span>
+              <strong>Centro de Mando:</strong> Radar holográfico, consola de soporte vital (ECLSS) y casillero de filtros.
+            </div>
+            <div class="map-zone-pill north">
+              <span class="zone-badge">NORTE</span>
+              <strong>Ventanal Panorámico:</strong> Mirador presurizado de 13 metros hacia el horizonte marciano.
+            </div>
+            <div class="map-zone-pill west-south">
+              <span class="zone-badge">ZONA 01</span>
+              <strong>Comedor & Galera:</strong> Mesa de tripulación y estación de nutrición (Suroeste).
+            </div>
+            <div class="map-zone-pill west-north">
+              <span class="zone-badge">ZONA 02</span>
+              <strong>Dormitorios:</strong> Módulos privados de descanso y cabinas personales (Noroeste).
+            </div>
+            <div class="map-zone-pill east-north">
+              <span class="zone-badge">ZONA 03</span>
+              <strong>Laboratorio Científico:</strong> Incubadora BIOGROWTH-01 y espectrómetro de geología (Noreste).
+            </div>
+            <div class="map-zone-pill east-south">
+              <span class="zone-badge">ZONA 04</span>
+              <strong>Esclusa EVA & Rampa:</strong> Trajes espaciales y rampa exterior a la superficie de Marte (Sureste).
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-dismiss-map" class="btn-primary-large">CERRAR PLANO [ESC / M]</button>
         </div>
       </div>
     </div>
