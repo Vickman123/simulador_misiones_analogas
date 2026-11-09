@@ -43,11 +43,11 @@ export class MainMenu {
       const label = this.btnDesktop.querySelector('.btn-label');
       if (label) {
         if (this.selectedMode === 'tutorial') {
-          label.textContent = isMobile ? 'INICIAR TUTORIAL (TÁCTIL)' : 'INICIAR TUTORIAL ACADÉMICO';
+          label.textContent = 'INICIAR MODO TUTORIAL';
         } else if (this.selectedMode === 'certification') {
-          label.textContent = isMobile ? 'INICIAR EXAMEN (CERTIFICACIÓN)' : 'INICIAR EXAMEN DE CERTIFICACIÓN';
+          label.textContent = 'INICIAR EXAMEN OFICIAL';
         } else {
-          label.textContent = isMobile ? 'INICIAR MISIÓN (MÓVIL / TÁCTIL)' : 'INICIAR MISIÓN ESTÁNDAR';
+          label.textContent = 'INICIAR MISIÓN ESTÁNDAR';
         }
       }
     }
@@ -56,9 +56,9 @@ export class MainMenu {
     PlatformManager.getInstance().checkVRSupport().then((supported) => {
       if (!supported && isMobile && this.btnVR) {
         this.btnVR.style.opacity = '0.6';
-        const label = this.btnVR.querySelector('.btn-label');
+        const label = this.btnVR.querySelector('.vr-title');
         if (label) {
-          label.textContent = 'MODO VR (REQUIERE META QUEST)';
+          label.textContent = 'MODO VR';
         }
       }
     });
@@ -83,6 +83,15 @@ export class MainMenu {
       MissionManager.getInstance().setMissionType(this.selectedMode);
       EventBus.getInstance().emit('xr:requestEnter');
     });
+
+    const btnHeaderVR = document.getElementById('btn-header-vr');
+    if (btnHeaderVR) {
+      bindFastClick(btnHeaderVR, () => {
+        AudioManager.getInstance().playClick();
+        MissionManager.getInstance().setMissionType(this.selectedMode);
+        EventBus.getInstance().emit('xr:requestEnter');
+      });
+    }
 
     EventBus.getInstance().on('ui:showMainMenu', () => {
       this.show();
