@@ -33,28 +33,37 @@ export class Habitat {
     const radius = CONFIG.HABITAT.RADIUS;
     const height = CONFIG.HABITAT.HEIGHT;
 
-    // 0. Heavy-Duty Structural Foundation Pad anchored into Martian regolith
-    const foundationGeo = new THREE.CylinderGeometry(radius + 0.1, radius + 0.35, 0.9, 48);
-    const foundationMat = new THREE.MeshStandardMaterial({
+    // 1. Pristine White Cleanroom Epoxy Floor with Integrated Exterior Foundation Pad
+    // Unified monolithic cylinder: prevents ANY z-fighting by having a single mesh.
+    // Top face is at y = 0.0 (white cleanroom epoxy).
+    // Cylinder extends 1.0m deep down to y = -1.0m (anchored into Martian bedrock at -0.85m).
+    const floorTexture = AssetLoader.getInstance().createFloorTexture();
+    const floorGeo = new THREE.CylinderGeometry(radius, radius, 1.0, 48);
+
+    // Side face: exterior dark titanium foundation skirt visible outside on Mars
+    const sideMat = new THREE.MeshStandardMaterial({
       color: 0x1e293b,
       roughness: 0.85,
       metalness: 0.2
     });
-    const foundation = new THREE.Mesh(foundationGeo, foundationMat);
-    foundation.position.y = -0.45; // Spans from y = 0.0 down to y = -0.90
-    foundation.receiveShadow = true;
-    this.group.add(foundation);
 
-    // 1. Pristine White Cleanroom Epoxy Floor with Matte-Black Seams
-    const floorTexture = AssetLoader.getInstance().createFloorTexture();
-    const floorGeo = new THREE.CylinderGeometry(radius, radius, 0.2, 36);
-    const floorMat = new THREE.MeshStandardMaterial({
+    // Top face: pristine white cleanroom epoxy floor inside the habitat
+    const topMat = new THREE.MeshStandardMaterial({
       map: floorTexture,
       roughness: 0.22,
       metalness: 0.1
     });
-    const floor = new THREE.Mesh(floorGeo, floorMat);
-    floor.position.y = -0.1;
+
+    // Bottom face: dark seal pad into Martian bedrock
+    const bottomMat = new THREE.MeshStandardMaterial({
+      color: 0x0f172a,
+      roughness: 0.9,
+      metalness: 0.1
+    });
+
+    // Three.js CylinderGeometry material groups: [0: sides, 1: top cap, 2: bottom cap]
+    const floor = new THREE.Mesh(floorGeo, [sideMat, topMat, bottomMat]);
+    floor.position.set(0, -0.5, 0); // Top surface is strictly at y = 0.0, bottom at y = -1.0
     floor.receiveShadow = true;
     this.group.add(floor);
 

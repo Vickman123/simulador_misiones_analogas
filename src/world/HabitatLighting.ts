@@ -41,7 +41,8 @@ export class HabitatLighting {
     this.sunLight.shadow.camera.right = 20;
     this.sunLight.shadow.camera.top = 20;
     this.sunLight.shadow.camera.bottom = -20;
-    this.sunLight.shadow.bias = -0.001;
+    this.sunLight.shadow.bias = -0.0001;
+    this.sunLight.shadow.normalBias = 0.02;
     this.group.add(this.sunLight);
 
     // 4. Distributed Ceiling Downlights (Pure 5000K crisp white space laboratory LEDs)
