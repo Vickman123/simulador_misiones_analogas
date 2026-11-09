@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0c10" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>MARS ANALOG MISSION | SPACE Tech Labs</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script type="module" crossorigin src="./assets/index-D8sv7cV9.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-Cnq3wsIo.css">
+</head>
+<body class="mars-sim-body">
+  <!-- 3D Canvas Container -->
+  <div id="webgl-container" class="webgl-viewport"></div>
+
+  <!-- Reticle for desktop & mobile first-person inspection -->
+  <div id="reticle-container" class="reticle-container">
+    <div id="reticle" class="reticle">
+      <div class="reticle-dot"></div>
+      <div class="reticle-ring"></div>
+    </div>
+    <div id="interaction-tooltip" class="interaction-tooltip">
+      <span class="key-badge">INTERACTUAR</span>
+      <span id="tooltip-text" class="tooltip-text">Apunta para accionar</span>
+    </div>
+  </div>
+
+  <!-- Orientation notice for mobile portrait mode -->
+  <div id="portrait-hint-banner" class="portrait-hint-banner hidden">
+    <span class="hint-icon">🔄</span>
+    <span class="hint-text">Gira a horizontal para una mejor experiencia táctil</span>
+    <button class="btn-hint-close" aria-label="Cerrar aviso">&times;</button>
+  </div>
+
+  <!-- HUD Overlay Layer -->
+  <div id="ui-root" class="ui-root">
+    <!-- Top Header HUD -->
+    <header class="hud-top-bar">
+      <div class="hud-brand">
+        <div class="brand-logo-icon">▲</div>
+        <div class="brand-text">
+          <span class="brand-org">SPACE TECH LABS</span>
+          <span class="brand-division">MARS ANALOG RESEARCH FACILITY</span>
+        </div>
+      </div>
+
+      <div class="hud-mission-status">
+        <div class="hud-metric metric-mission-name">
+          <span class="metric-label">MISIÓN</span>
+          <span class="metric-value highlight-cyan">M-001 HABITAT</span>
+        </div>
+        <div class="hud-metric">
+          <span class="metric-label">TIEMPO</span>
+          <span id="hud-timer" class="metric-value">00:00.0</span>
+        </div>
+        <div class="hud-metric">
+          <span class="metric-label">ESTADO</span>
+          <span id="hud-habitat-status" class="metric-value status-nominal">NOMINAL</span>
+        </div>
+      </div>
+
+      <div class="hud-actions">
+        <!-- Mobile Objectives Toggle Button -->
+        <button id="btn-toggle-objectives" class="btn-action btn-objectives" title="Ver objetivos de misión">
+          <span>📋</span>
+          <span class="btn-obj-label">OBJETIVOS</span>
+          <span id="obj-btn-count" class="badge-count">0/4</span>
+        </button>
+        <button id="btn-enter-xr" class="btn-action btn-xr" title="Iniciar experiencia inmersiva WebXR">
+          <span class="xr-icon">🥽</span>
+          <span>ENTRAR A VR</span>
+        </button>
+        <button id="btn-pause-menu" class="btn-action btn-secondary" title="Pausar simulador [ESC]">
+          <span>PAUSA</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Emergency Banner (Hidden by default) -->
+    <div id="emergency-banner" class="emergency-banner hidden">
+      <div class="emergency-pulse-indicator">!</div>
+      <div class="emergency-content">
+        <h3 class="emergency-title">ALERTA CRÍTICA: ANOMALÍA EN FILTRACIÓN SECUNDARIA</h3>
+        <p class="emergency-desc">Aumento de resistencia de flujo. Rápida saturación de filtro HEPA-C1. Proceda al gabinete de recursos.</p>
+      </div>
+    </div>
+
+    <!-- Left Objectives Panel / Mobile Drawer -->
+    <aside class="hud-objectives-sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">OBJETIVOS OPERATIVOS</span>
+        <div class="sidebar-header-right">
+          <span id="hud-progress-percent" class="sidebar-progress">0%</span>
+          <button id="btn-close-objectives" class="btn-close-sidebar" aria-label="Cerrar panel">&times;</button>
+        </div>
+      </div>
+      <div class="progress-bar-track">
+        <div id="hud-progress-fill" class="progress-bar-fill" style="width: 0%;"></div>
+      </div>
+      <ul id="hud-objectives-list" class="objectives-list">
+        <!-- Injected via MissionHUD -->
+      </ul>
+
+      <!-- Mini Telemetry Widget -->
+      <div class="telemetry-widget">
+        <div class="telemetry-title">SOPORTE VITAL (SIMULADO)</div>
+        <div class="telemetry-grid">
+          <div class="telemetry-cell">
+            <span class="cell-label">O₂</span>
+            <span id="tel-o2" class="cell-val">20.9%</span>
+          </div>
+          <div class="telemetry-cell">
+            <span class="cell-label">CO₂</span>
+            <span id="tel-co2" class="cell-val">420 ppm</span>
+          </div>
+          <div class="telemetry-cell">
+            <span class="cell-label">PRESIÓN</span>
+            <span id="tel-press" class="cell-val">101.3 kPa</span>
+          </div>
+          <div class="telemetry-cell">
+            <span class="cell-label">ENERGÍA</span>
+            <span id="tel-power" class="cell-val">98.4 kW</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Desktop Bottom Controls Hint -->
+    <footer id="desktop-controls-hint" class="hud-footer-hints desktop-hints">
+      <div class="hint-item"><span class="kbd">W</span><span class="kbd">A</span><span class="kbd">S</span><span class="kbd">D</span> Moverse</div>
+      <div class="hint-item"><span class="kbd">RATÓN</span> Mirar alrededor</div>
+      <div class="hint-item"><span class="kbd">CLIC</span> Interactuar / Inspeccionar</div>
+      <div class="hint-item"><span class="kbd">ESC</span> Menú / Liberar ratón</div>
+    </footer>
+
+    <!-- Mobile Bottom Controls Hint -->
+    <footer id="mobile-controls-hint" class="hud-footer-hints mobile-hints">
+      <div class="hint-item"><span class="touch-icon">🕹️</span> Joystick para caminar</div>
+      <div class="hint-item"><span class="touch-icon">👆</span> Deslizar para mirar</div>
+      <div class="hint-item"><span class="touch-icon">✋</span> Botón o toque para interactuar</div>
+    </footer>
+  </div>
+
+  <!-- Mobile Virtual Controls Layer (Active on touch / mobile devices) -->
+  <div id="mobile-controls" class="mobile-controls-layer hidden">
+    <!-- Left: Virtual Joystick Zone -->
+    <div id="joystick-zone" class="joystick-zone">
+      <div id="joystick-base" class="joystick-base">
+        <div id="joystick-thumb" class="joystick-thumb"></div>
+        <div class="joystick-ring"></div>
+        <div class="joystick-crosshair-v"></div>
+        <div class="joystick-crosshair-h"></div>
+      </div>
+      <div class="joystick-prompt">JOYSTICK VIRTUAL</div>
+    </div>
+
+    <!-- Right: Look / Swipe Area (Touch zone) -->
+    <div id="touch-look-zone" class="touch-look-zone"></div>
+
+    <!-- Bottom-Right: Action & Sprint Controls -->
+    <div class="mobile-action-buttons">
+      <button id="btn-mobile-sprint" class="btn-mobile-action btn-sprint" type="button" title="Alternar correr/caminar">
+        <span class="btn-icon">⚡</span>
+        <span class="btn-sub">CAMINAR</span>
+      </button>
+      <button id="btn-mobile-interact" class="btn-mobile-action btn-interact" type="button" title="Interactuar con consola enfrente o tocar en pantalla">
+        <div class="interact-icon-ring">
+          <span class="btn-icon">✋</span>
+        </div>
+        <span id="btn-mobile-interact-label" class="btn-label">INTERACTUAR</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Modals and Overlays Container -->
+  <div id="modal-container" class="modal-layer">
+    <!-- Main Menu / Start Screen -->
+    <div id="screen-main-menu" class="fullscreen-modal visible">
+      <div class="modal-card main-menu-card">
+        <div class="space-badge">SPACE TECH LABS • ANALOG PROGRAM</div>
+        <h1 class="main-title">MARS ANALOG MISSION</h1>
+        <p class="subtitle">Simulador de Entrenamiento Científico & Operaciones en Hábitat Marciano</p>
+        
+        <div class="mission-brief-preview">
+          <div class="brief-item">
+            <span class="label">LOCACIÓN</span>
+            <span class="val">Argyre Planitia Analog Station (Simulada)</span>
+          </div>
+          <div class="brief-item">
+            <span class="label">ASIGNACIÓN</span>
+            <span class="val">Misión 001: Habitat Recovery & Biogrowth Validation</span>
+          </div>
+          <div class="brief-item">
+            <span class="label">EQUIPAMIENTO</span>
+            <span class="val">Móvil / Tablet (Táctil) • Desktop (WASD) • Meta Quest (WebXR)</span>
+          </div>
+        </div>
+
+        <div class="menu-actions">
+          <button id="btn-start-desktop" class="btn-primary-large">
+            <span class="btn-glow"></span>
+            <span class="btn-label">INICIAR MISIÓN</span>
+          </button>
+          <button id="btn-start-vr" class="btn-secondary-large">
+            <span class="btn-icon">🥽</span>
+            <span class="btn-label">MODO WEBXR (META QUEST)</span>
+          </button>
+        </div>
+
+        <div class="system-disclaimer">
+          <strong>Aviso Educativo:</strong> Este software es una simulación interactiva con fines educativos y de demostración técnica desarrollada por SPACE Tech Labs. Compatible con computadoras, smartphones y visores de realidad virtual.
+        </div>
+      </div>
+    </div>
+
+    <!-- Mission Briefing Modal -->
+    <div id="modal-briefing" class="modal-backdrop hidden">
+      <div class="modal-card briefing-card">
+        <div class="modal-header">
+          <div class="modal-tag">ORDEN DE OPERACIONES</div>
+          <h2>BRIEFING DE LA MISIÓN 001</h2>
+          <button class="btn-close-modal" id="btn-close-briefing">&times;</button>
+        </div>
+        <div class="briefing-body">
+          <div class="briefing-speaker">
+            <div class="avatar-box">CAPCOM</div>
+            <div class="speaker-text">
+              <p><strong>Comandante de Misión Análoga:</strong></p>
+              <p>Bienvenido a bordo de la estación análoga de investigación. Tu jornada contempla tres actividades clave:</p>
+              <ol class="briefing-steps">
+                <li><strong>Inspección Diagnóstica:</strong> Accede a la Consola de Soporte Vital y verifica los subsistemas de presurización y filtración.</li>
+                <li><strong>Validación Biológica BIOGROWTH-01:</strong> En la Estación Científica, calibra los espectros lumínicos e irrigación hidropónica de la muestra análoga.</li>
+                <li><strong>Resolución de Contingencia:</strong> Resuelve cualquier desviación operativa mediante los protocolos de reemplazo de filtros y presurización.</li>
+              </ol>
+              <div class="mobile-brief-hint">
+                💡 <strong>Controles táctiles:</strong> Usa el joystick a la izquierda para caminar, desliza a la derecha para girar y toca las consolas o el botón "INTERACTUAR" para operar.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-accept-briefing" class="btn-primary-large">COMENZAR OPERACIONES</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Console: Life Support -->
+    <div id="modal-lifesupport" class="modal-backdrop hidden">
+      <div class="modal-card console-card">
+        <div class="modal-header">
+          <div class="modal-tag">TERMINAL 01</div>
+          <h2>CONSOLA DE CONTROL DE SOPORTE VITAL</h2>
+          <button class="btn-close-modal" id="btn-close-lifesupport">&times;</button>
+        </div>
+        <div class="console-body" id="lifesupport-content">
+          <!-- Dynamically populated by LifeSupportSystem UI -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Console: Science Station BIOGROWTH-01 -->
+    <div id="modal-science" class="modal-backdrop hidden">
+      <div class="modal-card console-card">
+        <div class="modal-header">
+          <div class="modal-tag">LABORATORIO CIENTÍFICO</div>
+          <h2>CÁMARA EXPERIMENTAL BIOGROWTH-01</h2>
+          <button class="btn-close-modal" id="btn-close-science">&times;</button>
+        </div>
+        <div class="console-body" id="science-content">
+          <!-- Dynamically populated by ScienceExperimentSystem UI -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Console: Resource Cabinet -->
+    <div id="modal-resources" class="modal-backdrop hidden">
+      <div class="modal-card console-card">
+        <div class="modal-header">
+          <div class="modal-tag">ALMACÉN DE SUMINISTROS</div>
+          <h2>GABINETE DE REPUESTOS Y COMPONENTES</h2>
+          <button class="btn-close-modal" id="btn-close-resources">&times;</button>
+        </div>
+        <div class="console-body" id="resources-content">
+          <!-- Dynamically populated by ResourceSystem UI -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Final Mission Report Modal -->
+    <div id="modal-report" class="modal-backdrop hidden">
+      <div class="modal-card report-card" id="report-card-content">
+        <!-- Dynamically populated by MissionReport UI -->
+      </div>
+    </div>
+
+    <!-- Pause / Settings Menu -->
+    <div id="modal-pause" class="modal-backdrop hidden">
+      <div class="modal-card pause-card">
+        <h2>SIMULACIÓN EN PAUSA</h2>
+        <p>Estación Análoga Argyre Planitia</p>
+        <div class="pause-actions">
+          <button id="btn-resume-mission" class="btn-primary-large">REANUDAR MISIÓN</button>
+          <button id="btn-restart-mission" class="btn-secondary-large">REINICIAR MISIÓN</button>
+          <button id="btn-toggle-sound" class="btn-secondary-large">AUDIO: ACTIVADO</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio synthesizers and main application bundle -->
+</body>
+</html>
